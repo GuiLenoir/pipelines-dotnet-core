@@ -18,9 +18,3 @@ steps:
     echo See https://aka.ms/yaml
   displayName: 'Run a multi-line script'
 
-- script: |
-    curl -X POST \
-      -H "Content-Type: application/json" \
-      -d '{"content":"🚀 Pipeline $(Build.BuildNumber) executado! Branch: $(Build.SourceBranch)"}' \
-      "https://discord.com/api/webhooks/1239663711266934785/Cq1EXfEcK31EXRE1IkM64AYnkNX-2PMC9GgvhsPEjFY7BxfL-z5lJF2rIa6FtquIn1Ao"
-  displayName: 'Notificar Discord'
