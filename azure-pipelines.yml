@@ -20,12 +20,12 @@ steps:
 
 - powershell: |
     $body = @{
-      content = "🚀 Pipeline executado com sucesso!"
+      content = "🚀 Pipeline executada com sucesso!"
     } | ConvertTo-Json
 
     Invoke-RestMethod `
-      -Uri "https://discord.com/api/webhooks/1239663711266934785/Cq1EXfEcK31EXRE1IkM64AYnkNX-2PMC9GgvhsPEjFY7BxfL-z5lJF2rIa6FtquIn1Ao" `
+      -Uri "$(webhook1)" `
       -Method Post `
       -ContentType "application/json" `
       -Body $body
-  displayName: 'webhook discord'
+  displayName: "Webhook Discord"
