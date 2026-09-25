@@ -6,6 +6,9 @@
 trigger:
 - master
 
+variables:
+- group: discord-secrets
+
 pool:
   vmImage: windows-latest
 
