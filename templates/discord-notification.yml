@@ -1,0 +1,19 @@
+parameters:
+- name: message
+  type: string
+- name: displayName
+  type: string
+  default: Discord Notification
+
+steps:
+- powershell: |
+    $body = @{
+      content = '${{ parameters.message }}'
+    } | ConvertTo-Json
+
+    Invoke-RestMethod `
+      -Uri "$(webhook1)" `
+      -Method Post `
+      -ContentType "application/json" `
+      -Body $body
+  displayName: "${{ parameters.displayName }}"

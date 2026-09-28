@@ -14,232 +14,44 @@ stages:
 # ============================================================
 
 - stage: DEV
-  displayName: "🔵 Gacha DEV"
+  displayName: "🔵 Roleta DEV"
 
   jobs:
 
   - deployment: GachaDEV
-    displayName: "🎰 Executar Gacha DEV"
+    displayName: "🐓 Executar Roleta DEV"
 
     environment: dev
 
     strategy:
       runOnce:
         deploy:
-
           steps:
 
           # --------------------------------------------------
           # Discord - início
           # --------------------------------------------------
 
-          - powershell: |
-              $body = @{
-                content = "🔵 **Roleta da Rinha de Galo** - Sorteio iniciado! 🎰"
-              } | ConvertTo-Json
-
-              Invoke-RestMethod `
-                -Uri "$(webhook1)" `
-                -Method Post `
-                -ContentType "application/json" `
-                -Body $body
-
-            displayName: "Discord - Gacha DEV iniciado"
+          - template: templates/discord-notification.yml
+            parameters:
+              message: "🔵 **Roleta da Rinha de Galo** - Sorteio DEV iniciado! 🎰"
+              displayName: "Discord - DEV iniciado"
 
 
           # --------------------------------------------------
           # Gacha
           # --------------------------------------------------
 
-          - powershell: |
-
-              # ==============================================
-              # TABELA DE PERSONAGENS
-              # ==============================================
-
-              $characters = @{
-                  Common = @(
-                      "Galo da Fazenda do seu Zé",
-                      "Galo Periculoso",
-                      "Galo Idoso"
-                  )
-
-                  Uncommon = @(
-                      "Galo Cafetão",
-                      "Galo Doido",
-                      "Galo Psicopata"
-                  )
-
-                  Rare = @(
-                      "Galo de Rinha Tradicional",
-                      "Galo 2077"
-                  )
-
-                  Epic = @(
-                      "Galo Voador",
-                      "Galo de 4 Patas"
-                  )
-
-                  Legendary = @(
-                      "Galo CJ"
-                  )
-              }
-
-
-              # ==============================================
-              # SORTEIO DA RARIDADE
-              # ==============================================
-
-              $roll = Get-Random -Minimum 1 -Maximum 101
-
-              Write-Host "Número sorteado: $roll"
-
-
-              if ($roll -le 60) {
-
-                  $rarity = "Common"
-
-              }
-              elseif ($roll -le 85) {
-
-                  $rarity = "Uncommon"
-
-              }
-              elseif ($roll -le 95) {
-
-                  $rarity = "Rare"
-
-              }
-              elseif ($roll -le 99) {
-
-                  $rarity = "Epic"
-
-              }
-              else {
-
-                  $rarity = "Legendary"
-
-              }
-
-
-              # ==============================================
-              # ESCOLHER PERSONAGEM
-              # ==============================================
-
-              $character = Get-Random -InputObject $characters[$rarity]
-
-
-              # ==============================================
-              # EMOJIS
-              # ==============================================
-
-              switch ($rarity) {
-
-                  "Common" {
-                      $emoji = "⚪"
-                  }
-
-                  "Uncommon" {
-                      $emoji = "🟢"
-                  }
-
-                  "Rare" {
-                      $emoji = "🔵"
-                  }
-
-                  "Epic" {
-                      $emoji = "🟣"
-                  }
-
-                  "Legendary" {
-                      $emoji = "🟡"
-                  }
-
-              }
-
-
-              # ==============================================
-              # MOSTRAR NO LOG
-              # ==============================================
-
-              Write-Host ""
-              Write-Host "===================================="
-              Write-Host "          RESULTADO ROLETA"
-              Write-Host "===================================="
-              Write-Host "Roll: $roll"
-              Write-Host "Rarity: $rarity"
-              Write-Host "Character: $character"
-              Write-Host "===================================="
-              Write-Host ""
-
-
-              # ==============================================
-              # GUARDAR RESULTADO COMO VARIÁVEIS DA PIPELINE
-              # ==============================================
-
-              Write-Host "##vso[task.setvariable variable=gachaRarity]$rarity"
-              Write-Host "##vso[task.setvariable variable=gachaCharacter]$character"
-              Write-Host "##vso[task.setvariable variable=gachaRoll]$roll"
-
-            displayName: "🎰 Executar Gacha DEV"
+          - template: templates/gacha.yml
 
 
           # --------------------------------------------------
-          # Discord - resultado
+          # Resultado
           # --------------------------------------------------
 
-          - powershell: |
-
-              $rarity = "$(gachaRarity)"
-              $character = "$(gachaCharacter)"
-              $roll = "$(gachaRoll)"
-
-              switch ($rarity) {
-
-                  "Common" {
-                      $emoji = "⚪"
-                  }
-
-                  "Uncommon" {
-                      $emoji = "🟢"
-                  }
-
-                  "Rare" {
-                      $emoji = "🔵"
-                  }
-
-                  "Epic" {
-                      $emoji = "🟣"
-                  }
-
-                  "Legendary" {
-                      $emoji = "🟡"
-                  }
-
-              }
-
-              $message = @"
-              🎰 **GACHA DEV**
-
-              🎲 Roll: **$roll**
-
-              $emoji Raridade: **$rarity**
-              ✨ Personagem: **$character**
-
-              _Gacha executado com sucesso!_
-              "@
-
-              $body = @{
-                content = $message
-              } | ConvertTo-Json
-
-              Invoke-RestMethod `
-                -Uri "$(webhook1)" `
-                -Method Post `
-                -ContentType "application/json" `
-                -Body $body
-
-            displayName: "Discord - Resultado DEV"
+          - template: templates/gacha-result.yml
+            parameters:
+              environmentName: "DEV"
 
 
 # ============================================================
@@ -247,73 +59,74 @@ stages:
 # ============================================================
 
 - stage: HOMOLOG
-  displayName: "🟡 Gacha HOMOLOG"
+  displayName: "🟡 Roleta HOMOLOG"
 
   dependsOn: DEV
 
   jobs:
 
   - deployment: GachaHOMOLOG
-    displayName: "🎰 Executar Gacha HOMOLOG"
+    displayName: "🐓 Validar Roleta HOMOLOG"
 
     environment: homolog
 
     strategy:
       runOnce:
         deploy:
-
           steps:
 
           # --------------------------------------------------
           # Discord - início
           # --------------------------------------------------
 
-          - powershell: |
-
-              $body = @{
-                content = "🟡 **GACHA HOMOLOG** - Validação iniciada! 🎰"
-              } | ConvertTo-Json
-
-              Invoke-RestMethod `
-                -Uri "$(webhook1)" `
-                -Method Post `
-                -ContentType "application/json" `
-                -Body $body
-
-            displayName: "Discord - Gacha HOMOLOG iniciado"
+          - template: templates/discord-notification.yml
+            parameters:
+              message: "🟡 **Roleta da Rinha de Galo** - Validação HOMOLOG iniciada! 🎰"
+              displayName: "Discord - HOMOLOG iniciado"
 
 
           # --------------------------------------------------
-          # Validação
+          # Validação das probabilidades
           # --------------------------------------------------
 
           - powershell: |
 
               Write-Host "===================================="
-              Write-Host "     VALIDANDO GACHA HOMOLOG"
+              Write-Host "     VALIDANDO ROLETA HOMOLOG"
               Write-Host "===================================="
 
-              Write-Host ""
-              Write-Host "Common:     60%"
-              Write-Host "Uncommon:   25%"
-              Write-Host "Rare:       10%"
-              Write-Host "Epic:        4%"
-              Write-Host "Legendary:  1%"
-              Write-Host ""
+              $common = 60
+              $uncommon = 25
+              $rare = 10
+              $epic = 4
+              $legendary = 1
 
-              $total = 60 + 25 + 10 + 4 + 1
+              $total = `
+                $common + `
+                $uncommon + `
+                $rare + `
+                $epic + `
+                $legendary
 
-              Write-Host "Total: $total%"
+              Write-Host ""
+              Write-Host "Common:     $common%"
+              Write-Host "Uncommon:   $uncommon%"
+              Write-Host "Rare:       $rare%"
+              Write-Host "Epic:       $epic%"
+              Write-Host "Legendary:  $legendary%"
+              Write-Host ""
+              Write-Host "Total:      $total%"
+              Write-Host ""
 
               if ($total -ne 100) {
 
-                  Write-Error "As probabilidades não totalizam 100%."
+                Write-Error "As probabilidades não totalizam 100%."
 
-                  exit 1
+                exit 1
               }
 
-              Write-Host "Probabilidades válidas!"
-              Write-Host "Gacha HOMOLOG aprovado."
+              Write-Host "✅ Probabilidades válidas!"
+              Write-Host "✅ Roleta HOMOLOG aprovada!"
 
             displayName: "Validar probabilidades"
 
@@ -322,19 +135,10 @@ stages:
           # Discord - sucesso
           # --------------------------------------------------
 
-          - powershell: |
-
-              $body = @{
-                content = "🟢 **GACHA HOMOLOG** - Validação concluída com sucesso! ✅"
-              } | ConvertTo-Json
-
-              Invoke-RestMethod `
-                -Uri "$(webhook1)" `
-                -Method Post `
-                -ContentType "application/json" `
-                -Body $body
-
-            displayName: "Discord - HOMOLOG aprovado"
+          - template: templates/discord-notification.yml
+            parameters:
+              message: "🟢 **Roleta HOMOLOG** - Validação concluída com sucesso! ✅"
+              displayName: "Discord - HOMOLOG aprovado"
 
 
 # ============================================================
@@ -342,232 +146,43 @@ stages:
 # ============================================================
 
 - stage: PROD
-  displayName: "🔴 Gacha PROD"
+  displayName: "🔴 Roleta PROD"
 
   dependsOn: HOMOLOG
 
   jobs:
 
   - deployment: GachaPROD
-    displayName: "🎰 Executar Gacha PROD"
+    displayName: "🐓 Executar Roleta PROD"
 
     environment: prod
 
     strategy:
       runOnce:
         deploy:
-
           steps:
 
           # --------------------------------------------------
           # Discord - início
           # --------------------------------------------------
 
-          - powershell: |
-
-              $body = @{
-                content = "🚀 **GACHA PROD** - Deploy autorizado! Sorteio iniciado! 🎰"
-              } | ConvertTo-Json
-
-              Invoke-RestMethod `
-                -Uri "$(webhook1)" `
-                -Method Post `
-                -ContentType "application/json" `
-                -Body $body
-
-            displayName: "Discord - Gacha PROD iniciado"
+          - template: templates/discord-notification.yml
+            parameters:
+              message: "🚀 **ROLETA PROD** - Deploy autorizado! Sorteio iniciado! 🎰"
+              displayName: "Discord - PROD iniciado"
 
 
           # --------------------------------------------------
-          # Gacha PROD
+          # Gacha
           # --------------------------------------------------
 
-          - powershell: |
-
-              # ==============================================
-              # PERSONAGENS
-              # ==============================================
-
-              $characters = @{
-                  Common = @(
-                      "Slime",
-                      "Goblin",
-                      "Skeleton"
-                  )
-
-                  Uncommon = @(
-                      "Orc",
-                      "Wolf",
-                      "Mage"
-                  )
-
-                  Rare = @(
-                      "Knight",
-                      "Assassin"
-                  )
-
-                  Epic = @(
-                      "Dragon",
-                      "Archmage"
-                  )
-
-                  Legendary = @(
-                      "Phoenix"
-                  )
-              }
-
-
-              # ==============================================
-              # SORTEIO
-              # ==============================================
-
-              $roll = Get-Random -Minimum 1 -Maximum 101
-
-
-              if ($roll -le 60) {
-
-                  $rarity = "Common"
-
-              }
-              elseif ($roll -le 85) {
-
-                  $rarity = "Uncommon"
-
-              }
-              elseif ($roll -le 95) {
-
-                  $rarity = "Rare"
-
-              }
-              elseif ($roll -le 99) {
-
-                  $rarity = "Epic"
-
-              }
-              else {
-
-                  $rarity = "Legendary"
-
-              }
-
-
-              # ==============================================
-              # PERSONAGEM
-              # ==============================================
-
-              $character = Get-Random -InputObject $characters[$rarity]
-
-
-              # ==============================================
-              # EMOJI
-              # ==============================================
-
-              switch ($rarity) {
-
-                  "Common" {
-                      $emoji = "⚪"
-                  }
-
-                  "Uncommon" {
-                      $emoji = "🟢"
-                  }
-
-                  "Rare" {
-                      $emoji = "🔵"
-                  }
-
-                  "Epic" {
-                      $emoji = "🟣"
-                  }
-
-                  "Legendary" {
-                      $emoji = "🟡"
-                  }
-
-              }
-
-
-              # ==============================================
-              # LOG
-              # ==============================================
-
-              Write-Host ""
-              Write-Host "===================================="
-              Write-Host "           🎰 GACHA PROD"
-              Write-Host "===================================="
-              Write-Host ""
-              Write-Host "Roll: $roll"
-              Write-Host "Rarity: $rarity"
-              Write-Host "Character: $character"
-              Write-Host ""
-              Write-Host "===================================="
-
-
-              # ==============================================
-              # VARIÁVEIS
-              # ==============================================
-
-              Write-Host "##vso[task.setvariable variable=gachaRarity]$rarity"
-              Write-Host "##vso[task.setvariable variable=gachaCharacter]$character"
-              Write-Host "##vso[task.setvariable variable=gachaRoll]$roll"
-
-            displayName: "🎰 Executar Gacha PROD"
+          - template: templates/gacha.yml
 
 
           # --------------------------------------------------
-          # Discord - resultado
+          # Resultado
           # --------------------------------------------------
 
-          - powershell: |
-
-              $rarity = "$(gachaRarity)"
-              $character = "$(gachaCharacter)"
-              $roll = "$(gachaRoll)"
-
-              switch ($rarity) {
-
-                  "Common" {
-                      $emoji = "⚪"
-                  }
-
-                  "Uncommon" {
-                      $emoji = "🟢"
-                  }
-
-                  "Rare" {
-                      $emoji = "🔵"
-                  }
-
-                  "Epic" {
-                      $emoji = "🟣"
-                  }
-
-                  "Legendary" {
-                      $emoji = "🟡"
-                  }
-
-              }
-
-              $message = @"
-              🎰 **GACHA PROD**
-
-              ╔══════════════════════╗
-              🎲 Roll: **$roll**
-              $emoji Rarity: **$rarity**
-              ✨ Character: **$character**
-              ╚══════════════════════╝
-
-              🎉 Parabéns!
-              "@
-
-              $body = @{
-                content = $message
-              } | ConvertTo-Json
-
-              Invoke-RestMethod `
-                -Uri "$(webhook1)" `
-                -Method Post `
-                -ContentType "application/json" `
-                -Body $body
-
-            displayName: "Discord - Resultado PROD"
+          - template: templates/gacha-result.yml
+            parameters:
+              environmentName: "PROD"

@@ -1,0 +1,54 @@
+parameters:
+
+- name: environmentName
+  type: string
+
+steps:
+
+- powershell: |
+
+    $environmentName = "${{ parameters.environmentName }}"
+
+    $rarity = "$(gachaRarity)"
+    $character = "$(gachaCharacter)"
+    $roll = "$(gachaRoll)"
+    $emoji = "$(gachaEmoji)"
+
+
+    # ========================================================
+    # MENSAGEM
+    # ========================================================
+
+    $message = @"
+🎰 **ROLETA DA RINHA DE GALO**
+
+🏟️ Ambiente: **$environmentName**
+
+🎲 Roll: **$roll**
+
+$emoji Raridade: **$rarity**
+
+🐓 Galo: **$character**
+
+━━━━━━━━━━━━━━━━━━━━
+
+🎉 **Parabéns!**
+"@
+
+
+    # ========================================================
+    # DISCORD
+    # ========================================================
+
+    $body = @{
+        content = $message
+    } | ConvertTo-Json
+
+
+    Invoke-RestMethod `
+        -Uri "$(webhook1)" `
+        -Method Post `
+        -ContentType "application/json" `
+        -Body $body
+
+  displayName: "Discord - Resultado ${{ parameters.environmentName }}"

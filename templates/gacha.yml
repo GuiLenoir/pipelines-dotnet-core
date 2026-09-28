@@ -1,0 +1,143 @@
+steps:
+
+- powershell: |
+
+    # ========================================================
+    # PERSONAGENS
+    # ========================================================
+
+    $characters = @{
+
+        Common = @(
+            "Galo da Fazenda do seu Zé",
+            "Galo Periculoso",
+            "Galo Idoso"
+        )
+
+        Uncommon = @(
+            "Galo Cafetão",
+            "Galo Doido",
+            "Galo Psicopata"
+        )
+
+        Rare = @(
+            "Galo de Rinha Tradicional",
+            "Galo 2077"
+        )
+
+        Epic = @(
+            "Galo Voador",
+            "Galo de 4 Patas"
+        )
+
+        Legendary = @(
+            "Galo CJ"
+        )
+    }
+
+
+    # ========================================================
+    # SORTEIO
+    # ========================================================
+
+    $roll = Get-Random -Minimum 1 -Maximum 101
+
+    Write-Host "Número sorteado: $roll"
+
+
+    # ========================================================
+    # RARIDADE
+    # ========================================================
+
+    if ($roll -le 60) {
+
+        $rarity = "Common"
+
+    }
+    elseif ($roll -le 85) {
+
+        $rarity = "Uncommon"
+
+    }
+    elseif ($roll -le 95) {
+
+        $rarity = "Rare"
+
+    }
+    elseif ($roll -le 99) {
+
+        $rarity = "Epic"
+
+    }
+    else {
+
+        $rarity = "Legendary"
+    }
+
+
+    # ========================================================
+    # PERSONAGEM
+    # ========================================================
+
+    $character = Get-Random -InputObject $characters[$rarity]
+
+
+    # ========================================================
+    # EMOJI
+    # ========================================================
+
+    switch ($rarity) {
+
+        "Common" {
+            $emoji = "⚪"
+        }
+
+        "Uncommon" {
+            $emoji = "🟢"
+        }
+
+        "Rare" {
+            $emoji = "🔵"
+        }
+
+        "Epic" {
+            $emoji = "🟣"
+        }
+
+        "Legendary" {
+            $emoji = "🟡"
+        }
+    }
+
+
+    # ========================================================
+    # LOG
+    # ========================================================
+
+    Write-Host ""
+    Write-Host "===================================="
+    Write-Host "       🐓 ROLETA DA RINHA"
+    Write-Host "===================================="
+    Write-Host ""
+    Write-Host "Roll:       $roll"
+    Write-Host "Rarity:     $rarity"
+    Write-Host "Character:  $character"
+    Write-Host "Emoji:      $emoji"
+    Write-Host ""
+    Write-Host "===================================="
+    Write-Host ""
+
+
+    # ========================================================
+    # PIPELINE VARIABLES
+    # ========================================================
+
+    Write-Host "##vso[task.setvariable variable=gachaRarity]$rarity"
+
+    Write-Host "##vso[task.setvariable variable=gachaCharacter]$character"
+
+    Write-Host "##vso[task.setvariable variable=gachaRoll]$roll"
+
+    Write-Host "##vso[task.setvariable variable=gachaEmoji]$emoji"
+
+  displayName: "🎰 Executar Roleta"
