@@ -5,33 +5,41 @@ variables:
 - group: discord-secrets
 
 pool:
-  vmImage: windows-latest
+  vmImage: ubuntu-latest
 
 stages:
 
-- stage: environmentDEV
-  displayName: 'environment de desenvolvimento'
+# ========================================
+# DEV
+# ========================================
+
+- stage: DEV
+  displayName: "🔵 Deploy DEV"
 
   jobs:
-  - deployment: deployDEV
+
+  - deployment: DeployDEV
+    displayName: "Deploy DEV"
+
     environment: dev
 
     strategy:
       runOnce:
         deploy:
+
           steps:
 
-          - script: echo Jarvis, iniciar pipeline...
-            displayName: '1 writeline apenas'
-
           - script: |
-              echo Jarvis iniciado.
-              echo Jarvis preparando conecção
-            displayName: 'Multiplos writeline'
+              echo "================================="
+              echo "Deploy DEV iniciado"
+              echo "================================="
+
+            displayName: "Iniciar DEV"
 
           - powershell: |
+
               $body = @{
-                content = ':burrito: Pipeline do jarvis finalizada com sucesso'
+                content = "🔵 DEV - Deploy iniciado"
               } | ConvertTo-Json
 
               Invoke-RestMethod `
@@ -39,4 +47,92 @@ stages:
                 -Method Post `
                 -ContentType "application/json" `
                 -Body $body
-            displayName: 'Webhook do discord'
+
+            displayName: "Discord - DEV"
+
+
+# ========================================
+# HOMOLOGAÇÃO
+# ========================================
+- stage: HOMOLOG
+  displayName: "🟡 Deploy HOMOLOG"
+
+  dependsOn: DEV
+
+  jobs:
+
+  - deployment: DeployHOMOLOG
+    displayName: "Deploy HOMOLOG"
+
+    environment: homolog
+
+    strategy:
+      runOnce:
+        deploy:
+
+          steps:
+
+          - script: |
+              echo "================================="
+              echo "Deploy HOMOLOG iniciado"
+              echo "================================="
+
+            displayName: "Iniciar HOMOLOG"
+
+          - powershell: |
+
+              $body = @{
+                content = "🟡 HOMOLOG - Deploy iniciado"
+              } | ConvertTo-Json
+
+              Invoke-RestMethod `
+                -Uri "$(webhook1)" `
+                -Method Post `
+                -ContentType "application/json" `
+                -Body $body
+
+            displayName: "Discord - HOMOLOG"
+
+
+# ========================================
+# PRODUÇÃO
+# ========================================
+- stage: PROD
+  displayName: "🔴 Deploy PROD"
+
+  dependsOn: HOMOLOG
+
+  jobs:
+
+  - deployment: DeployPROD
+    displayName: "Deploy PROD"
+
+    environment: prod
+
+    strategy:
+      runOnce:
+        deploy:
+
+          steps:
+
+          - script: |
+              echo "================================="
+              echo "Deploy PROD iniciado"
+              echo "================================="
+
+            displayName: "Iniciar PROD"
+
+          - powershell: |
+
+              $body = @{
+                content = "🔴 PROD - Deploy iniciado"
+              } | ConvertTo-Json
+
+              Invoke-RestMethod `
+                -Uri "$(webhook1)" `
+                -Method Post `
+                -ContentType "application/json" `
+                -Body $body
+
+            displayName: "Discord - PROD"
+
