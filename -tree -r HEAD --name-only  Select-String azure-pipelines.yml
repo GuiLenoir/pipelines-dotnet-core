@@ -1,0 +1,204 @@
+trigger:
+
+master
+
+variables:
+
+group: discord-secrets
+
+pool:
+vmImage: ubuntu-latest
+
+stages:
+
+============================================================
+DEV
+============================================================
+
+stage: DEV
+displayName: "🔵 Roleta DEV"
+
+jobs:
+
+deployment: GachaDEV
+displayName: "🐓 Executar Roleta DEV"
+
+environment: dev
+
+strategy:
+runOnce:
+deploy:
+steps:
+
+  # --------------------------------------------------
+  # Discord - início DEV
+  # --------------------------------------------------
+
+  - template: templates/discord-notification.yml
+    parameters:
+      message: |
+        🔵 **ROLETA DEV**
+
+        🐓 Uma nova luta está começando!
+
+        🎰 Preparando os galos...
+      displayName: "Discord - DEV iniciado"
+
+  # --------------------------------------------------
+  # Gacha
+  # --------------------------------------------------
+
+  - template: templates/gacha.yml
+
+  # --------------------------------------------------
+  # Batalha + resultado
+  # --------------------------------------------------
+
+  - template: templates/gacha-result.yml
+    parameters:
+      environmentName: "DEV"
+      color: "3447003"
+
+============================================================
+HOMOLOG
+============================================================
+
+stage: HOMOLOG
+displayName: "🟡 Roleta HOMOLOG"
+
+dependsOn: DEV
+
+jobs:
+
+deployment: GachaHOMOLOG
+displayName: "🔍 Validar Roleta HOMOLOG"
+
+environment: homolog
+
+strategy:
+runOnce:
+deploy:
+steps:
+
+  # --------------------------------------------------
+  # Discord - início HOMOLOG
+  # --------------------------------------------------
+
+  - template: templates/discord-notification.yml
+    parameters:
+      message: |
+        🟡 **ROLETA HOMOLOG**
+
+        🔍 Iniciando validação da roleta...
+
+        ⚙️ Verificando probabilidades.
+      displayName: "Discord - HOMOLOG iniciado"
+
+  # --------------------------------------------------
+  # Validação
+  # --------------------------------------------------
+
+  - powershell: |
+
+      Write-Host "========================================"
+      Write-Host "       VALIDANDO ROLETA HOMOLOG"
+      Write-Host "========================================"
+
+      $common = 60
+      $uncommon = 25
+      $rare = 10
+      $epic = 4
+      $legendary = 1
+
+      $total = `
+        $common + `
+        $uncommon + `
+        $rare + `
+        $epic + `
+        $legendary
+
+      Write-Host ""
+      Write-Host "Common:     $common%"
+      Write-Host "Uncommon:   $uncommon%"
+      Write-Host "Rare:       $rare%"
+      Write-Host "Epic:       $epic%"
+      Write-Host "Legendary:  $legendary%"
+      Write-Host ""
+      Write-Host "Total:      $total%"
+      Write-Host ""
+
+      if ($total -ne 100) {
+
+          Write-Error "As probabilidades não totalizam 100%."
+
+          exit 1
+      }
+
+      Write-Host "Probabilidades válidas!"
+      Write-Host "Roleta HOMOLOG aprovada!"
+
+    displayName: "🧪 Validar probabilidades"
+
+  # --------------------------------------------------
+  # Discord - sucesso
+  # --------------------------------------------------
+
+  - template: templates/discord-notification.yml
+    parameters:
+      message: |
+        🟢 **ROLETA HOMOLOG**
+
+        ✅ Validação concluída com sucesso!
+
+        🐓 O ringue está pronto para produção.
+      displayName: "Discord - HOMOLOG aprovado"
+
+============================================================
+PROD
+============================================================
+
+stage: PROD
+displayName: "🔴 Roleta PROD"
+
+dependsOn: HOMOLOG
+
+jobs:
+
+deployment: GachaPROD
+displayName: "🐓 Executar Roleta PROD"
+
+environment: prod
+
+strategy:
+runOnce:
+deploy:
+steps:
+
+  # --------------------------------------------------
+  # Discord - início PROD
+  # --------------------------------------------------
+
+  - template: templates/discord-notification.yml
+    parameters:
+      message: |
+        🔴 **ROLETA PROD**
+
+        🚨 A luta oficial começou!
+
+        🐓 Preparando os competidores...
+      displayName: "Discord - PROD iniciado"
+
+  # --------------------------------------------------
+  # Gacha
+  # --------------------------------------------------
+
+  - template: templates/gacha.yml
+
+  # --------------------------------------------------
+  # Batalha + resultado
+  # --------------------------------------------------
+
+  - template: templates/gacha-result.yml
+    parameters:
+      environmentName: "PROD"
+      color: "15158332"
