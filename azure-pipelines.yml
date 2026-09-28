@@ -14,57 +14,92 @@ stages:
 # ============================================================
 
 - stage: DEV
-  displayName: "🔵 Roleta DEV"
+  displayName: "Roleta DEV"
 
   jobs:
 
   - deployment: GachaDEV
-    displayName: "🐓 Executar Roleta DEV"
+    displayName: "Executar Roleta DEV"
 
     environment: dev
 
     strategy:
       runOnce:
         deploy:
-
           steps:
 
-          # --------------------------------------------------
-          # Discord - início DEV
-          # --------------------------------------------------
+          # ==================================================
+          # CHECKOUT
+          # ==================================================
+
+          - checkout: self
+            displayName: "Baixar codigo"
+
+          # ==================================================
+          # DISCORD - INICIO
+          # ==================================================
 
           - template: templates/discord-notification.yml
             parameters:
-              message: "🔵 **DEV** | 🎰 Roleta iniciada!"
+              message: "DEV | Roleta iniciada!"
               displayName: "Discord - DEV iniciado"
 
-          # --------------------------------------------------
+          # ==================================================
           # .NET
-          # --------------------------------------------------
+          # ==================================================
 
           - task: UseDotNet@2
-            displayName: "🟣 Instalar .NET 10"
+            displayName: "Instalar .NET"
             inputs:
-              packageType: sdk
+              packageType: "sdk"
               version: "10.x"
 
           - script: |
-              dotnet restore GaloRinha.Api/GaloRinha.Api.csproj
-            displayName: "📦 Restaurar dependências"
+              echo "========================================"
+              echo "DIRETORIO ATUAL"
+              echo "========================================"
+              pwd
+
+              echo "========================================"
+              echo "BUILD SOURCES"
+              echo "========================================"
+              echo "$(Build.SourcesDirectory)"
+
+              echo "========================================"
+              echo "ARQUIVOS"
+              echo "========================================"
+              ls -la "$(Build.SourcesDirectory)"
+
+              echo "========================================"
+              echo "GALO API"
+              echo "========================================"
+              ls -la "$(Build.SourcesDirectory)/GaloRinha.Api"
+
+              echo "========================================"
+              echo "CSPROJ"
+              echo "========================================"
+              ls -la "$(Build.SourcesDirectory)/GaloRinha.Api/"*.csproj
+            displayName: "Verificar codigo"
 
           - script: |
-              dotnet build GaloRinha.Api/GaloRinha.Api.csproj --configuration Release --no-restore
-            displayName: "🔨 Compilar API"
+              dotnet restore "$(Build.SourcesDirectory)/GaloRinha.Api/GaloRinha.Api.csproj"
+            displayName: "Restaurar dependencias"
 
-          # --------------------------------------------------
-          # Gacha
-          # --------------------------------------------------
+          - script: |
+              dotnet build "$(Build.SourcesDirectory)/GaloRinha.Api/GaloRinha.Api.csproj" \
+                --configuration Release \
+                --no-restore
+            displayName: "Compilar API"
+
+          # ==================================================
+          # GACHA
+          # ==================================================
 
           - template: templates/gacha.yml
 
-          # --------------------------------------------------
-          # Resultado DEV
-          # --------------------------------------------------
+          # ==================================================
+          # DISCORD - RESULTADO
+          # ==================================================
 
           - template: templates/gacha-result.yml
             parameters:
@@ -77,40 +112,46 @@ stages:
 # ============================================================
 
 - stage: HOMOLOG
-  displayName: "🟡 Roleta HOMOLOG"
+  displayName: "Roleta HOMOLOG"
 
   dependsOn: DEV
 
   jobs:
 
   - deployment: GachaHOMOLOG
-    displayName: "🐓 Validar Roleta HOMOLOG"
+    displayName: "Validar Roleta HOMOLOG"
 
     environment: homolog
 
     strategy:
       runOnce:
         deploy:
-
           steps:
 
-          # --------------------------------------------------
-          # Discord - início HOMOLOG
-          # --------------------------------------------------
+          # ==================================================
+          # CHECKOUT
+          # ==================================================
+
+          - checkout: self
+            displayName: "Baixar codigo"
+
+          # ==================================================
+          # DISCORD
+          # ==================================================
 
           - template: templates/discord-notification.yml
             parameters:
-              message: "🟡 **HOMOLOG** | 🔍 Validação da roleta iniciada!"
+              message: "HOMOLOG | Validacao da roleta iniciada!"
               displayName: "Discord - HOMOLOG iniciado"
 
-          # --------------------------------------------------
-          # Validação
-          # --------------------------------------------------
+          # ==================================================
+          # VALIDACAO
+          # ==================================================
 
           - powershell: |
 
               Write-Host "===================================="
-              Write-Host "     VALIDANDO ROLETA HOMOLOG"
+              Write-Host "VALIDANDO ROLETA HOMOLOG"
               Write-Host "===================================="
 
               $common = 60
@@ -127,32 +168,34 @@ stages:
                 $legendary
 
               Write-Host ""
-              Write-Host "Common:     $common%"
-              Write-Host "Uncommon:   $uncommon%"
-              Write-Host "Rare:       $rare%"
-              Write-Host "Epic:       $epic%"
-              Write-Host "Legendary:  $legendary%"
+              Write-Host "Common: $common%"
+              Write-Host "Uncommon: $uncommon%"
+              Write-Host "Rare: $rare%"
+              Write-Host "Epic: $epic%"
+              Write-Host "Legendary: $legendary%"
               Write-Host ""
-              Write-Host "Total:      $total%"
+              Write-Host "Total: $total%"
               Write-Host ""
 
               if ($total -ne 100) {
-                  Write-Error "As probabilidades não totalizam 100%."
-                  exit 1
+
+                Write-Error "As probabilidades nao totalizam 100%."
+
+                exit 1
               }
 
-              Write-Host "Probabilidades válidas!"
+              Write-Host "Probabilidades validas!"
               Write-Host "Roleta HOMOLOG aprovada!"
 
-            displayName: "🔍 Validar probabilidades"
+            displayName: "Validar probabilidades"
 
-          # --------------------------------------------------
-          # Discord - sucesso HOMOLOG
-          # --------------------------------------------------
+          # ==================================================
+          # DISCORD
+          # ==================================================
 
           - template: templates/discord-notification.yml
             parameters:
-              message: "🟢 **HOMOLOG** | ✅ Validação concluída com sucesso!"
+              message: "HOMOLOG | Validacao concluida com sucesso!"
               displayName: "Discord - HOMOLOG aprovado"
 
 
@@ -161,41 +204,67 @@ stages:
 # ============================================================
 
 - stage: PROD
-  displayName: "🔴 Roleta PROD"
+  displayName: "Roleta PROD"
 
   dependsOn: HOMOLOG
 
   jobs:
 
   - deployment: GachaPROD
-    displayName: "🐓 Executar Roleta PROD"
+    displayName: "Executar Roleta PROD"
 
     environment: prod
 
     strategy:
       runOnce:
         deploy:
-
           steps:
 
-          # --------------------------------------------------
-          # Discord - início PROD
-          # --------------------------------------------------
+          # ==================================================
+          # CHECKOUT
+          # ==================================================
+
+          - checkout: self
+            displayName: "Baixar codigo"
+
+          # ==================================================
+          # DISCORD
+          # ==================================================
 
           - template: templates/discord-notification.yml
             parameters:
-              message: "🔴 **PROD** | 🚀 PRODUÇÃO INICIADA!"
+              message: "PROD | PRODUCAO INICIADA!"
               displayName: "Discord - PROD iniciado"
 
-          # --------------------------------------------------
-          # Gacha
-          # --------------------------------------------------
+          # ==================================================
+          # .NET
+          # ==================================================
+
+          - task: UseDotNet@2
+            displayName: "Instalar .NET"
+            inputs:
+              packageType: "sdk"
+              version: "10.x"
+
+          - script: |
+              dotnet restore "$(Build.SourcesDirectory)/GaloRinha.Api/GaloRinha.Api.csproj"
+            displayName: "Restaurar dependencias"
+
+          - script: |
+              dotnet build "$(Build.SourcesDirectory)/GaloRinha.Api/GaloRinha.Api.csproj" \
+                --configuration Release \
+                --no-restore
+            displayName: "Compilar API"
+
+          # ==================================================
+          # GACHA
+          # ==================================================
 
           - template: templates/gacha.yml
 
-          # --------------------------------------------------
-          # Resultado PROD
-          # --------------------------------------------------
+          # ==================================================
+          # DISCORD
+          # ==================================================
 
           - template: templates/gacha-result.yml
             parameters:
