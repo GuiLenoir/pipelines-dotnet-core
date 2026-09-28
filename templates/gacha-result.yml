@@ -4,8 +4,8 @@ parameters:
   type: string
 
 - name: color
-  type: int
-  default: 3447003
+  type: string
+  default: "3447003"
 
 steps:
 
@@ -22,15 +22,19 @@ steps:
     $roll = "$(gachaRoll)"
     $emoji = "$(gachaEmoji)"
 
+    $color = [int]${{ parameters.color }}
+
+
     # ========================================================
     # DISCORD EMBED
     # ========================================================
 
     $embed = @{
         title = "🎰 ROLETA DA RINHA DE GALO"
+
         description = "Resultado do sorteio"
 
-        color = ${{ parameters.color }}
+        color = $color
 
         fields = @(
             @{
@@ -63,6 +67,7 @@ steps:
         }
     }
 
+
     # ========================================================
     # PAYLOAD
     # ========================================================
@@ -70,6 +75,7 @@ steps:
     $body = @{
         embeds = @($embed)
     } | ConvertTo-Json -Depth 10
+
 
     # ========================================================
     # DISCORD
