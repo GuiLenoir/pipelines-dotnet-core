@@ -29,6 +29,12 @@ stages:
           steps:
 
           # --------------------------------------------------
+          # Checkout do repositório
+          # --------------------------------------------------
+
+          - checkout: self
+
+          # --------------------------------------------------
           # Discord - início DEV
           # --------------------------------------------------
 
@@ -38,7 +44,7 @@ stages:
               displayName: "Discord - DEV iniciado"
 
           # --------------------------------------------------
-          # .NET - Restore
+          # .NET
           # --------------------------------------------------
 
           - task: UseDotNet@2
@@ -47,16 +53,49 @@ stages:
               packageType: "sdk"
               version: "10.x"
 
-          - script: |
-              dotnet restore GaloRinha.Api/GaloRinha.Api.csproj
+          # --------------------------------------------------
+          # Verificar arquivos
+          # --------------------------------------------------
+
+          - bash: |
+              echo "===================================="
+              echo "      VERIFICANDO REPOSITÓRIO"
+              echo "===================================="
+
+              echo ""
+              echo "Diretório atual:"
+              pwd
+
+              echo ""
+              echo "Build.SourcesDirectory:"
+              echo "$(Build.SourcesDirectory)"
+
+              echo ""
+              echo "Conteúdo do projeto:"
+              ls -la "$(Build.SourcesDirectory)/GaloRinha.Api"
+
+              echo ""
+              echo "Projeto .NET:"
+              ls -la "$(Build.SourcesDirectory)/GaloRinha.Api/"*.csproj
+
+            displayName: "🔎 Verificar projeto"
+
+          # --------------------------------------------------
+          # .NET - Restore
+          # --------------------------------------------------
+
+          - bash: |
+              dotnet restore "$(Build.SourcesDirectory)/GaloRinha.Api/GaloRinha.Api.csproj"
             displayName: "📦 Restaurar dependências"
 
           # --------------------------------------------------
           # .NET - Build
           # --------------------------------------------------
 
-          - script: |
-              dotnet build GaloRinha.Api/GaloRinha.Api.csproj --configuration Release --no-restore
+          - bash: |
+              dotnet build "$(Build.SourcesDirectory)/GaloRinha.Api/GaloRinha.Api.csproj" \
+                --configuration Release \
+                --no-restore
             displayName: "🔨 Compilar API"
 
           # --------------------------------------------------
@@ -97,6 +136,12 @@ stages:
           steps:
 
           # --------------------------------------------------
+          # Checkout do repositório
+          # --------------------------------------------------
+
+          - checkout: self
+
+          # --------------------------------------------------
           # Discord - início HOMOLOG
           # --------------------------------------------------
 
@@ -106,7 +151,31 @@ stages:
               displayName: "Discord - HOMOLOG iniciado"
 
           # --------------------------------------------------
-          # Validação
+          # .NET
+          # --------------------------------------------------
+
+          - task: UseDotNet@2
+            displayName: "🟣 Instalar .NET"
+            inputs:
+              packageType: "sdk"
+              version: "10.x"
+
+          # --------------------------------------------------
+          # Build
+          # --------------------------------------------------
+
+          - bash: |
+              dotnet restore "$(Build.SourcesDirectory)/GaloRinha.Api/GaloRinha.Api.csproj"
+            displayName: "📦 Restaurar dependências"
+
+          - bash: |
+              dotnet build "$(Build.SourcesDirectory)/GaloRinha.Api/GaloRinha.Api.csproj" \
+                --configuration Release \
+                --no-restore
+            displayName: "🔨 Compilar API"
+
+          # --------------------------------------------------
+          # Validação da roleta
           # --------------------------------------------------
 
           - powershell: |
@@ -139,7 +208,9 @@ stages:
               Write-Host ""
 
               if ($total -ne 100) {
+
                 Write-Error "As probabilidades não totalizam 100%."
+
                 exit 1
               }
 
@@ -180,6 +251,12 @@ stages:
           steps:
 
           # --------------------------------------------------
+          # Checkout do repositório
+          # --------------------------------------------------
+
+          - checkout: self
+
+          # --------------------------------------------------
           # Discord - início PROD
           # --------------------------------------------------
 
@@ -187,6 +264,30 @@ stages:
             parameters:
               message: "🔴 **PROD** | 🚀 PRODUÇÃO INICIADA!"
               displayName: "Discord - PROD iniciado"
+
+          # --------------------------------------------------
+          # .NET
+          # --------------------------------------------------
+
+          - task: UseDotNet@2
+            displayName: "🟣 Instalar .NET"
+            inputs:
+              packageType: "sdk"
+              version: "10.x"
+
+          # --------------------------------------------------
+          # Build
+          # --------------------------------------------------
+
+          - bash: |
+              dotnet restore "$(Build.SourcesDirectory)/GaloRinha.Api/GaloRinha.Api.csproj"
+            displayName: "📦 Restaurar dependências"
+
+          - bash: |
+              dotnet build "$(Build.SourcesDirectory)/GaloRinha.Api/GaloRinha.Api.csproj" \
+                --configuration Release \
+                --no-restore
+            displayName: "🔨 Compilar API"
 
           # --------------------------------------------------
           # Gacha
