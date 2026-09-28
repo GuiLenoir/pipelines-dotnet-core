@@ -9,13 +9,13 @@ steps:
     $characters = @{
 
         Common = @(
-            "Galo da Fazenda do seu Zé",
+            "Galo da Fazenda do seu Ze",
             "Galo Periculoso",
             "Galo Idoso"
         )
 
         Uncommon = @(
-            "Galo Cafetão",
+            "Galo Cafetao",
             "Galo Doido",
             "Galo Psicopata"
         )
@@ -34,6 +34,11 @@ steps:
             "Galo CJ"
         )
     }
+
+
+    # ========================================================
+    # FUNCAO PARA GERAR GALO
+    # ========================================================
 
     function Gerar-Galo {
 
@@ -55,11 +60,14 @@ steps:
             $raridade = "Legendary"
         }
 
+
         $nome = Get-Random -InputObject $characters[$raridade]
+
 
         switch ($raridade) {
 
             "Common" {
+
                 $hp = Get-Random -Minimum 80 -Maximum 101
                 $ataque = Get-Random -Minimum 20 -Maximum 41
                 $defesa = Get-Random -Minimum 20 -Maximum 41
@@ -67,6 +75,7 @@ steps:
             }
 
             "Uncommon" {
+
                 $hp = Get-Random -Minimum 90 -Maximum 111
                 $ataque = Get-Random -Minimum 35 -Maximum 56
                 $defesa = Get-Random -Minimum 30 -Maximum 51
@@ -74,6 +83,7 @@ steps:
             }
 
             "Rare" {
+
                 $hp = Get-Random -Minimum 100 -Maximum 121
                 $ataque = Get-Random -Minimum 50 -Maximum 71
                 $defesa = Get-Random -Minimum 40 -Maximum 61
@@ -81,6 +91,7 @@ steps:
             }
 
             "Epic" {
+
                 $hp = Get-Random -Minimum 110 -Maximum 131
                 $ataque = Get-Random -Minimum 65 -Maximum 86
                 $defesa = Get-Random -Minimum 50 -Maximum 71
@@ -88,12 +99,14 @@ steps:
             }
 
             "Legendary" {
+
                 $hp = Get-Random -Minimum 120 -Maximum 151
                 $ataque = Get-Random -Minimum 80 -Maximum 101
                 $defesa = Get-Random -Minimum 60 -Maximum 81
                 $velocidade = Get-Random -Minimum 60 -Maximum 81
             }
         }
+
 
         return @{
             Nome = $nome
@@ -105,17 +118,30 @@ steps:
         }
     }
 
+
     # ========================================================
-    # GERAR GALOS
+    # GERAR GALO 1
     # ========================================================
 
     $galo1 = Gerar-Galo
+
+
+    # ========================================================
+    # GERAR GALO 2
+    # ========================================================
+
     $galo2 = Gerar-Galo
+
+
+    # ========================================================
+    # EXIBIR GALOS
+    # ========================================================
 
     Write-Host ""
     Write-Host "========================================"
-    Write-Host "          GALOS SORTEADOS"
+    Write-Host "           GALOS SORTEADOS"
     Write-Host "========================================"
+
 
     Write-Host ""
     Write-Host "GALO 1"
@@ -126,6 +152,7 @@ steps:
     Write-Host "Defesa: $($galo1.Defesa)"
     Write-Host "Velocidade: $($galo1.Velocidade)"
 
+
     Write-Host ""
     Write-Host "GALO 2"
     Write-Host "Nome: $($galo2.Nome)"
@@ -135,8 +162,9 @@ steps:
     Write-Host "Defesa: $($galo2.Defesa)"
     Write-Host "Velocidade: $($galo2.Velocidade)"
 
+
     # ========================================================
-    # VARIÁVEIS DO PIPELINE
+    # VARIAVEIS PARA PROXIMOS STEPS
     # ========================================================
 
     Write-Host "##vso[task.setvariable variable=galo1Nome]$($galo1.Nome)"
@@ -153,4 +181,4 @@ steps:
     Write-Host "##vso[task.setvariable variable=galo2Defesa]$($galo2.Defesa)"
     Write-Host "##vso[task.setvariable variable=galo2Velocidade]$($galo2.Velocidade)"
 
-  displayName: "🎰 Sortear dois galos"
+  displayName: "Sortear dois galos"
