@@ -13,17 +13,17 @@ pool:
   vmImage: windows-latest
 
 steps:
-- script: echo Salve rapazeada!!
-  displayName: 'Run a one-line script'
+- script: echo Jarvis, iniciar pipeline...
+  displayName: '1 writeline apenas'
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    echo Jarvis iniciado.
+    echo Jarvis preparando conecção
+  displayName: 'Multiplos writeline'
 
 - powershell: |
     $body = @{
-      content = "🚀 Pipeline executada com sucesso!"
+      content = ":burrito: Pipeline do jarvis finalizada com sucesso"
     } | ConvertTo-Json
 
     Invoke-RestMethod `
@@ -31,4 +31,4 @@ steps:
       -Method Post `
       -ContentType "application/json" `
       -Body $body
-  displayName: "Webhook Discord"
+  displayName: "Webhook do discord"
