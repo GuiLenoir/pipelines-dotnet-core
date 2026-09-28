@@ -11,16 +11,18 @@ steps:
 
 - powershell: |
 
-    $body = @{
-      content = @'
+    $message = @'
 ${{ parameters.message }}
 '@
+
+    $body = @{
+        content = $message
     } | ConvertTo-Json
 
     Invoke-RestMethod `
-      -Uri "$(webhook1)" `
-      -Method Post `
-      -ContentType "application/json" `
-      -Body $body
+        -Uri "$(webhook1)" `
+        -Method Post `
+        -ContentType "application/json" `
+        -Body $body
 
   displayName: "${{ parameters.displayName }}"

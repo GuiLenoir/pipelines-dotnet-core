@@ -106,20 +106,15 @@ steps:
     }
 
     # ========================================================
-    # GERAR GALO 1
+    # GERAR GALOS
     # ========================================================
 
     $galo1 = Gerar-Galo
-
-    # ========================================================
-    # GERAR GALO 2
-    # ========================================================
-
     $galo2 = Gerar-Galo
 
     Write-Host ""
     Write-Host "========================================"
-    Write-Host "          🐓 GALOS SORTEADOS"
+    Write-Host "          GALOS SORTEADOS"
     Write-Host "========================================"
 
     Write-Host ""
@@ -141,7 +136,7 @@ steps:
     Write-Host "Velocidade: $($galo2.Velocidade)"
 
     # ========================================================
-    # VARIÁVEIS
+    # VARIÁVEIS DO PIPELINE
     # ========================================================
 
     Write-Host "##vso[task.setvariable variable=galo1Nome]$($galo1.Nome)"

@@ -48,22 +48,15 @@ steps:
         Write-Host ""
         Write-Host "========== ROUND $round =========="
 
-        # -----------------------------------------------
-        # QUEM ATACA PRIMEIRO?
-        # -----------------------------------------------
-
         if ($galo1Velocidade -ge $galo2Velocidade) {
-
             $primeiro = 1
-
         }
         else {
-
             $primeiro = 2
         }
 
         # ====================================================
-        # PRIMEIRO ATAQUE
+        # GALO 1 ATACA PRIMEIRO
         # ====================================================
 
         if ($primeiro -eq 1) {
@@ -80,25 +73,23 @@ steps:
 
                 $dano = $dano * 2
 
-                $rounds += "🥊 **Round $round** — 🐓 **$galo1Nome** acertou um 💥 **CRÍTICO** causando **$dano de dano**!"
+                $rounds += "🥊 Round $round — $galo1Nome acertou um 💥 CRÍTICO causando $dano de dano!"
 
             }
             else {
 
-                $rounds += "🥊 **Round $round** — 🐓 **$galo1Nome** causou **$dano de dano**!"
+                $rounds += "🥊 Round $round — $galo1Nome causou $dano de dano!"
             }
 
             $hp2 -= $dano
 
-            Write-Host "$galo1Nome causou $dano"
+            Write-Host "$galo1Nome causou $dano de dano"
 
             if ($hp2 -le 0) {
                 break
             }
 
-            # -----------------------------------------------
-            # CONTRA-ATAQUE
-            # -----------------------------------------------
+            # Contra-ataque
 
             $dano = $galo2Ataque - [math]::Floor($galo1Defesa / 2)
 
@@ -112,18 +103,17 @@ steps:
 
                 $dano = $dano * 2
 
-                $rounds += "🥊 **Round $round** — 🐓 **$galo2Nome** respondeu com 💥 **CRÍTICO** causando **$dano de dano**!"
+                $rounds += "🥊 Round $round — $galo2Nome respondeu com 💥 CRÍTICO causando $dano de dano!"
 
             }
             else {
 
-                $rounds += "🥊 **Round $round** — 🐓 **$galo2Nome** causou **$dano de dano**!"
+                $rounds += "🥊 Round $round — $galo2Nome causou $dano de dano!"
             }
 
             $hp1 -= $dano
 
-            Write-Host "$galo2Nome causou $dano"
-
+            Write-Host "$galo2Nome causou $dano de dano"
         }
 
         # ====================================================
@@ -144,25 +134,23 @@ steps:
 
                 $dano = $dano * 2
 
-                $rounds += "🥊 **Round $round** — 🐓 **$galo2Nome** acertou um 💥 **CRÍTICO** causando **$dano de dano**!"
+                $rounds += "🥊 Round $round — $galo2Nome acertou um 💥 CRÍTICO causando $dano de dano!"
 
             }
             else {
 
-                $rounds += "🥊 **Round $round** — 🐓 **$galo2Nome** causou **$dano de dano**!"
+                $rounds += "🥊 Round $round — $galo2Nome causou $dano de dano!"
             }
 
             $hp1 -= $dano
 
-            Write-Host "$galo2Nome causou $dano"
+            Write-Host "$galo2Nome causou $dano de dano"
 
             if ($hp1 -le 0) {
                 break
             }
 
-            # -----------------------------------------------
-            # CONTRA-ATAQUE
-            # -----------------------------------------------
+            # Contra-ataque
 
             $dano = $galo1Ataque - [math]::Floor($galo2Defesa / 2)
 
@@ -176,39 +164,55 @@ steps:
 
                 $dano = $dano * 2
 
-                $rounds += "🥊 **Round $round** — 🐓 **$galo1Nome** respondeu com 💥 **CRÍTICO** causando **$dano de dano**!"
+                $rounds += "🥊 Round $round — $galo1Nome respondeu com 💥 CRÍTICO causando $dano de dano!"
 
             }
             else {
 
-                $rounds += "🥊 **Round $round** — 🐓 **$galo1Nome** causou **$dano de dano**!"
+                $rounds += "🥊 Round $round — $galo1Nome causou $dano de dano!"
             }
 
             $hp2 -= $dano
 
-            Write-Host "$galo1Nome causou $dano"
+            Write-Host "$galo1Nome causou $dano de dano"
         }
 
         $round++
-
     }
 
     # ========================================================
     # DEFINIR VENCEDOR
     # ========================================================
 
-    if ($hp1 -gt 0) {
+    if ($hp1 -gt 0 -and $hp2 -le 0) {
 
         $winner = $galo1Nome
         $winnerRarity = $galo1Raridade
         $winnerHp = $hp1
 
     }
-    else {
+    elseif ($hp2 -gt 0 -and $hp1 -le 0) {
 
         $winner = $galo2Nome
         $winnerRarity = $galo2Raridade
         $winnerHp = $hp2
+
+    }
+    else {
+
+        if ($hp1 -ge $hp2) {
+
+            $winner = $galo1Nome
+            $winnerRarity = $galo1Raridade
+            $winnerHp = $hp1
+
+        }
+        else {
+
+            $winner = $galo2Nome
+            $winnerRarity = $galo2Raridade
+            $winnerHp = $hp2
+        }
     }
 
     # ========================================================
@@ -217,22 +221,21 @@ steps:
 
     Write-Host ""
     Write-Host "========================================"
-    Write-Host "             🏆 VENCEDOR"
+    Write-Host "              VENCEDOR"
     Write-Host "========================================"
     Write-Host ""
-    Write-Host "🐓 $winner"
-    Write-Host "⭐ $winnerRarity"
-    Write-Host "❤️ HP restante: $winnerHp"
+    Write-Host "$winner"
+    Write-Host "Raridade: $winnerRarity"
+    Write-Host "HP restante: $winnerHp"
     Write-Host ""
 
     # ========================================================
-    # ROUNDS PARA DISCORD
+    # ROUNDS
     # ========================================================
 
     $battleText = ""
 
     foreach ($item in $rounds) {
-
         $battleText += "$item`n"
     }
 
@@ -243,31 +246,31 @@ steps:
     $message = @"
 🎰 **ROLETA DA RINHA — ${{ parameters.environmentName }}**
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 🐓 **$galo1Nome**
-⭐ $galo1Raridade
+⭐ Raridade: **$galo1Raridade**
 ❤️ HP: **$galo1Hp**
 ⚔️ ATK: **$galo1Ataque**
 🛡️ DEF: **$galo1Defesa**
 💨 SPD: **$galo1Velocidade**
 
-            🆚
+                🆚
 
 🐓 **$galo2Nome**
-⭐ $galo2Raridade
+⭐ Raridade: **$galo2Raridade**
 ❤️ HP: **$galo2Hp**
 ⚔️ ATK: **$galo2Ataque**
 🛡️ DEF: **$galo2Defesa**
 💨 SPD: **$galo2Velocidade**
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ⚔️ **A LUTA COMEÇOU!**
 
 $battleText
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 🏆 **VENCEDOR**
 

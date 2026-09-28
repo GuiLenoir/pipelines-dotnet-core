@@ -1,204 +1,203 @@
 trigger:
-
-master
+- master
 
 variables:
-
-group: discord-secrets
+- group: discord-secrets
 
 pool:
-vmImage: ubuntu-latest
+  vmImage: ubuntu-latest
 
 stages:
 
-============================================================
-DEV
-============================================================
+# ============================================================
+# DEV
+# ============================================================
 
-stage: DEV
-displayName: "🔵 Roleta DEV"
+- stage: DEV
+  displayName: "🔵 Roleta DEV"
 
-jobs:
+  jobs:
 
-deployment: GachaDEV
-displayName: "🐓 Executar Roleta DEV"
+  - deployment: GachaDEV
+    displayName: "🐓 Executar Roleta DEV"
 
-environment: dev
+    environment: dev
 
-strategy:
-runOnce:
-deploy:
-steps:
+    strategy:
+      runOnce:
+        deploy:
 
-  # --------------------------------------------------
-  # Discord - início DEV
-  # --------------------------------------------------
+          steps:
 
-  - template: templates/discord-notification.yml
-    parameters:
-      message: |
-        🔵 **ROLETA DEV**
+          # --------------------------------------------------
+          # Discord - início DEV
+          # --------------------------------------------------
 
-        🐓 Uma nova luta está começando!
+          - template: templates/discord-notification.yml
+            parameters:
+              message: "🔵 **DEV** | 🎰 Roleta iniciada!"
+              displayName: "Discord - DEV iniciado"
 
-        🎰 Preparando os galos...
-      displayName: "Discord - DEV iniciado"
+          # --------------------------------------------------
+          # .NET
+          # --------------------------------------------------
 
-  # --------------------------------------------------
-  # Gacha
-  # --------------------------------------------------
+          - task: UseDotNet@2
+            displayName: "🟣 Instalar .NET 10"
+            inputs:
+              packageType: sdk
+              version: "10.x"
 
-  - template: templates/gacha.yml
+          - script: |
+              dotnet restore GaloRinha.Api/GaloRinha.Api.csproj
+            displayName: "📦 Restaurar dependências"
 
-  # --------------------------------------------------
-  # Batalha + resultado
-  # --------------------------------------------------
+          - script: |
+              dotnet build GaloRinha.Api/GaloRinha.Api.csproj --configuration Release --no-restore
+            displayName: "🔨 Compilar API"
 
-  - template: templates/gacha-result.yml
-    parameters:
-      environmentName: "DEV"
-      color: "3447003"
+          # --------------------------------------------------
+          # Gacha
+          # --------------------------------------------------
 
-============================================================
-HOMOLOG
-============================================================
+          - template: templates/gacha.yml
 
-stage: HOMOLOG
-displayName: "🟡 Roleta HOMOLOG"
+          # --------------------------------------------------
+          # Resultado DEV
+          # --------------------------------------------------
 
-dependsOn: DEV
+          - template: templates/gacha-result.yml
+            parameters:
+              environmentName: "DEV"
+              color: "3447003"
 
-jobs:
 
-deployment: GachaHOMOLOG
-displayName: "🔍 Validar Roleta HOMOLOG"
+# ============================================================
+# HOMOLOG
+# ============================================================
 
-environment: homolog
+- stage: HOMOLOG
+  displayName: "🟡 Roleta HOMOLOG"
 
-strategy:
-runOnce:
-deploy:
-steps:
+  dependsOn: DEV
 
-  # --------------------------------------------------
-  # Discord - início HOMOLOG
-  # --------------------------------------------------
+  jobs:
 
-  - template: templates/discord-notification.yml
-    parameters:
-      message: |
-        🟡 **ROLETA HOMOLOG**
+  - deployment: GachaHOMOLOG
+    displayName: "🐓 Validar Roleta HOMOLOG"
 
-        🔍 Iniciando validação da roleta...
+    environment: homolog
 
-        ⚙️ Verificando probabilidades.
-      displayName: "Discord - HOMOLOG iniciado"
+    strategy:
+      runOnce:
+        deploy:
 
-  # --------------------------------------------------
-  # Validação
-  # --------------------------------------------------
+          steps:
 
-  - powershell: |
+          # --------------------------------------------------
+          # Discord - início HOMOLOG
+          # --------------------------------------------------
 
-      Write-Host "========================================"
-      Write-Host "       VALIDANDO ROLETA HOMOLOG"
-      Write-Host "========================================"
+          - template: templates/discord-notification.yml
+            parameters:
+              message: "🟡 **HOMOLOG** | 🔍 Validação da roleta iniciada!"
+              displayName: "Discord - HOMOLOG iniciado"
 
-      $common = 60
-      $uncommon = 25
-      $rare = 10
-      $epic = 4
-      $legendary = 1
+          # --------------------------------------------------
+          # Validação
+          # --------------------------------------------------
 
-      $total = `
-        $common + `
-        $uncommon + `
-        $rare + `
-        $epic + `
-        $legendary
+          - powershell: |
 
-      Write-Host ""
-      Write-Host "Common:     $common%"
-      Write-Host "Uncommon:   $uncommon%"
-      Write-Host "Rare:       $rare%"
-      Write-Host "Epic:       $epic%"
-      Write-Host "Legendary:  $legendary%"
-      Write-Host ""
-      Write-Host "Total:      $total%"
-      Write-Host ""
+              Write-Host "===================================="
+              Write-Host "     VALIDANDO ROLETA HOMOLOG"
+              Write-Host "===================================="
 
-      if ($total -ne 100) {
+              $common = 60
+              $uncommon = 25
+              $rare = 10
+              $epic = 4
+              $legendary = 1
 
-          Write-Error "As probabilidades não totalizam 100%."
+              $total = `
+                $common + `
+                $uncommon + `
+                $rare + `
+                $epic + `
+                $legendary
 
-          exit 1
-      }
+              Write-Host ""
+              Write-Host "Common:     $common%"
+              Write-Host "Uncommon:   $uncommon%"
+              Write-Host "Rare:       $rare%"
+              Write-Host "Epic:       $epic%"
+              Write-Host "Legendary:  $legendary%"
+              Write-Host ""
+              Write-Host "Total:      $total%"
+              Write-Host ""
 
-      Write-Host "Probabilidades válidas!"
-      Write-Host "Roleta HOMOLOG aprovada!"
+              if ($total -ne 100) {
+                  Write-Error "As probabilidades não totalizam 100%."
+                  exit 1
+              }
 
-    displayName: "🧪 Validar probabilidades"
+              Write-Host "Probabilidades válidas!"
+              Write-Host "Roleta HOMOLOG aprovada!"
 
-  # --------------------------------------------------
-  # Discord - sucesso
-  # --------------------------------------------------
+            displayName: "🔍 Validar probabilidades"
 
-  - template: templates/discord-notification.yml
-    parameters:
-      message: |
-        🟢 **ROLETA HOMOLOG**
+          # --------------------------------------------------
+          # Discord - sucesso HOMOLOG
+          # --------------------------------------------------
 
-        ✅ Validação concluída com sucesso!
+          - template: templates/discord-notification.yml
+            parameters:
+              message: "🟢 **HOMOLOG** | ✅ Validação concluída com sucesso!"
+              displayName: "Discord - HOMOLOG aprovado"
 
-        🐓 O ringue está pronto para produção.
-      displayName: "Discord - HOMOLOG aprovado"
 
-============================================================
-PROD
-============================================================
+# ============================================================
+# PROD
+# ============================================================
 
-stage: PROD
-displayName: "🔴 Roleta PROD"
+- stage: PROD
+  displayName: "🔴 Roleta PROD"
 
-dependsOn: HOMOLOG
+  dependsOn: HOMOLOG
 
-jobs:
+  jobs:
 
-deployment: GachaPROD
-displayName: "🐓 Executar Roleta PROD"
+  - deployment: GachaPROD
+    displayName: "🐓 Executar Roleta PROD"
 
-environment: prod
+    environment: prod
 
-strategy:
-runOnce:
-deploy:
-steps:
+    strategy:
+      runOnce:
+        deploy:
 
-  # --------------------------------------------------
-  # Discord - início PROD
-  # --------------------------------------------------
+          steps:
 
-  - template: templates/discord-notification.yml
-    parameters:
-      message: |
-        🔴 **ROLETA PROD**
+          # --------------------------------------------------
+          # Discord - início PROD
+          # --------------------------------------------------
 
-        🚨 A luta oficial começou!
+          - template: templates/discord-notification.yml
+            parameters:
+              message: "🔴 **PROD** | 🚀 PRODUÇÃO INICIADA!"
+              displayName: "Discord - PROD iniciado"
 
-        🐓 Preparando os competidores...
-      displayName: "Discord - PROD iniciado"
+          # --------------------------------------------------
+          # Gacha
+          # --------------------------------------------------
 
-  # --------------------------------------------------
-  # Gacha
-  # --------------------------------------------------
+          - template: templates/gacha.yml
 
-  - template: templates/gacha.yml
+          # --------------------------------------------------
+          # Resultado PROD
+          # --------------------------------------------------
 
-  # --------------------------------------------------
-  # Batalha + resultado
-  # --------------------------------------------------
-
-  - template: templates/gacha-result.yml
-    parameters:
-      environmentName: "PROD"
-      color: "15158332"
+          - template: templates/gacha-result.yml
+            parameters:
+              environmentName: "PROD"
+              color: "15158332"
