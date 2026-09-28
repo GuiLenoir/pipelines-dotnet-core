@@ -9,9 +9,9 @@ pool:
 
 stages:
 
-# ========================================
+# ============================================================
 # DEV
-# ========================================
+# ============================================================
 
 - stage: DEV
   displayName: "🔵 Deploy DEV"
@@ -29,15 +29,11 @@ stages:
 
           steps:
 
-          - script: |
-              echo "================================="
-              echo "Deploy DEV iniciado"
-              echo "================================="
-
-            displayName: "Iniciar DEV"
+          # ----------------------------------------
+          # Discord - início
+          # ----------------------------------------
 
           - powershell: |
-
               $body = @{
                 content = "🔵 DEV - Deploy iniciado"
               } | ConvertTo-Json
@@ -48,12 +44,45 @@ stages:
                 -ContentType "application/json" `
                 -Body $body
 
-            displayName: "Discord - DEV"
+            displayName: "Discord - DEV iniciado"
 
 
-# ========================================
-# HOMOLOGAÇÃO
-# ========================================
+          # ----------------------------------------
+          # Deploy DEV
+          # ----------------------------------------
+
+          - script: |
+              echo "================================="
+              echo "Executando deploy DEV..."
+              echo "================================="
+
+              sleep 5
+
+            displayName: "Executar deploy DEV"
+
+
+          # ----------------------------------------
+          # Discord - sucesso
+          # ----------------------------------------
+
+          - powershell: |
+              $body = @{
+                content = "🟢 DEV - Deploy finalizado com sucesso"
+              } | ConvertTo-Json
+
+              Invoke-RestMethod `
+                -Uri "$(webhook1)" `
+                -Method Post `
+                -ContentType "application/json" `
+                -Body $body
+
+            displayName: "Discord - DEV finalizado"
+
+
+# ============================================================
+# HOMOLOG
+# ============================================================
+
 - stage: HOMOLOG
   displayName: "🟡 Deploy HOMOLOG"
 
@@ -72,15 +101,11 @@ stages:
 
           steps:
 
-          - script: |
-              echo "================================="
-              echo "Deploy HOMOLOG iniciado"
-              echo "================================="
-
-            displayName: "Iniciar HOMOLOG"
+          # ----------------------------------------
+          # Discord - início
+          # ----------------------------------------
 
           - powershell: |
-
               $body = @{
                 content = "🟡 HOMOLOG - Deploy iniciado"
               } | ConvertTo-Json
@@ -91,12 +116,45 @@ stages:
                 -ContentType "application/json" `
                 -Body $body
 
-            displayName: "Discord - HOMOLOG"
+            displayName: "Discord - HOMOLOG iniciado"
 
 
-# ========================================
-# PRODUÇÃO
-# ========================================
+          # ----------------------------------------
+          # Deploy HOMOLOG
+          # ----------------------------------------
+
+          - script: |
+              echo "================================="
+              echo "Executando deploy HOMOLOG..."
+              echo "================================="
+
+              sleep 5
+
+            displayName: "Executar deploy HOMOLOG"
+
+
+          # ----------------------------------------
+          # Discord - sucesso
+          # ----------------------------------------
+
+          - powershell: |
+              $body = @{
+                content = "🟢 HOMOLOG - Deploy finalizado com sucesso"
+              } | ConvertTo-Json
+
+              Invoke-RestMethod `
+                -Uri "$(webhook1)" `
+                -Method Post `
+                -ContentType "application/json" `
+                -Body $body
+
+            displayName: "Discord - HOMOLOG finalizado"
+
+
+# ============================================================
+# PROD
+# ============================================================
+
 - stage: PROD
   displayName: "🔴 Deploy PROD"
 
@@ -115,17 +173,13 @@ stages:
 
           steps:
 
-          - script: |
-              echo "================================="
-              echo "Deploy PROD iniciado"
-              echo "================================="
-
-            displayName: "Iniciar PROD"
+          # ----------------------------------------
+          # Discord - início
+          # ----------------------------------------
 
           - powershell: |
-
               $body = @{
-                content = "🔴 PROD - Deploy iniciado"
+                content = "🚀 PROD - Deploy autorizado e iniciado"
               } | ConvertTo-Json
 
               Invoke-RestMethod `
@@ -134,5 +188,36 @@ stages:
                 -ContentType "application/json" `
                 -Body $body
 
-            displayName: "Discord - PROD"
+            displayName: "Discord - PROD iniciado"
 
+
+          # ----------------------------------------
+          # Deploy PROD
+          # ----------------------------------------
+
+          - script: |
+              echo "================================="
+              echo "Executando deploy PROD..."
+              echo "================================="
+
+              sleep 5
+
+            displayName: "Executar deploy PROD"
+
+
+          # ----------------------------------------
+          # Discord - sucesso
+          # ----------------------------------------
+
+          - powershell: |
+              $body = @{
+                content = "✅ PROD - Deploy finalizado com sucesso"
+              } | ConvertTo-Json
+
+              Invoke-RestMethod `
+                -Uri "$(webhook1)" `
+                -Method Post `
+                -ContentType "application/json" `
+                -Body $body
+
+            displayName: "Discord - PROD finalizado"
