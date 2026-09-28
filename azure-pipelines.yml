@@ -38,6 +38,28 @@ stages:
               displayName: "Discord - DEV iniciado"
 
           # --------------------------------------------------
+          # .NET - Restore
+          # --------------------------------------------------
+
+          - task: UseDotNet@2
+            displayName: "🟣 Instalar .NET"
+            inputs:
+              packageType: "sdk"
+              version: "10.x"
+
+          - script: |
+              dotnet restore GaloRinha.Api/GaloRinha.Api.csproj
+            displayName: "📦 Restaurar dependências"
+
+          # --------------------------------------------------
+          # .NET - Build
+          # --------------------------------------------------
+
+          - script: |
+              dotnet build GaloRinha.Api/GaloRinha.Api.csproj --configuration Release --no-restore
+            displayName: "🔨 Compilar API"
+
+          # --------------------------------------------------
           # Gacha
           # --------------------------------------------------
 
@@ -117,9 +139,7 @@ stages:
               Write-Host ""
 
               if ($total -ne 100) {
-
                 Write-Error "As probabilidades não totalizam 100%."
-
                 exit 1
               }
 
