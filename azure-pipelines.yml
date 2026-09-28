@@ -29,14 +29,13 @@ stages:
           steps:
 
           # --------------------------------------------------
-          # Discord - início
+          # Discord - início DEV
           # --------------------------------------------------
 
           - template: templates/discord-notification.yml
             parameters:
-              message: "🔵 **Roleta da Rinha de Galo** - Sorteio DEV iniciado! 🎰"
+              message: "🔵 **DEV** | 🎰 Roleta iniciada!"
               displayName: "Discord - DEV iniciado"
-
 
           # --------------------------------------------------
           # Gacha
@@ -44,14 +43,14 @@ stages:
 
           - template: templates/gacha.yml
 
-
           # --------------------------------------------------
-          # Resultado
+          # Discord - resultado DEV
           # --------------------------------------------------
 
           - template: templates/gacha-result.yml
             parameters:
               environmentName: "DEV"
+              color: 3447003
 
 
 # ============================================================
@@ -76,17 +75,16 @@ stages:
           steps:
 
           # --------------------------------------------------
-          # Discord - início
+          # Discord - início HOMOLOG
           # --------------------------------------------------
 
           - template: templates/discord-notification.yml
             parameters:
-              message: "🟡 **Roleta da Rinha de Galo** - Validação HOMOLOG iniciada! 🎰"
+              message: "🟡 **HOMOLOG** | 🔍 Validação da roleta iniciada!"
               displayName: "Discord - HOMOLOG iniciado"
 
-
           # --------------------------------------------------
-          # Validação das probabilidades
+          # Validação
           # --------------------------------------------------
 
           - powershell: |
@@ -125,19 +123,18 @@ stages:
                 exit 1
               }
 
-              Write-Host "✅ Probabilidades válidas!"
-              Write-Host "✅ Roleta HOMOLOG aprovada!"
+              Write-Host "Probabilidades válidas!"
+              Write-Host "Roleta HOMOLOG aprovada!"
 
-            displayName: "Validar probabilidades"
-
+            displayName: "🔍 Validar probabilidades"
 
           # --------------------------------------------------
-          # Discord - sucesso
+          # Discord - sucesso HOMOLOG
           # --------------------------------------------------
 
           - template: templates/discord-notification.yml
             parameters:
-              message: "🟢 **Roleta HOMOLOG** - Validação concluída com sucesso! ✅"
+              message: "🟢 **HOMOLOG** | ✅ Validação concluída com sucesso!"
               displayName: "Discord - HOMOLOG aprovado"
 
 
@@ -163,14 +160,13 @@ stages:
           steps:
 
           # --------------------------------------------------
-          # Discord - início
+          # Discord - início PROD
           # --------------------------------------------------
 
           - template: templates/discord-notification.yml
             parameters:
-              message: "🚀 **ROLETA PROD** - Deploy autorizado! Sorteio iniciado! 🎰"
+              message: "🔴 **PROD** | 🚀 PRODUÇÃO INICIADA!"
               displayName: "Discord - PROD iniciado"
-
 
           # --------------------------------------------------
           # Gacha
@@ -178,11 +174,11 @@ stages:
 
           - template: templates/gacha.yml
 
-
           # --------------------------------------------------
-          # Resultado
+          # Discord - resultado PROD
           # --------------------------------------------------
 
           - template: templates/gacha-result.yml
             parameters:
               environmentName: "PROD"
+              color: 15158332

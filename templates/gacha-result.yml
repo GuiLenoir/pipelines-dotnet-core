@@ -1,38 +1,84 @@
 parameters:
+
 - name: environmentName
   type: string
+
+- name: color
+  type: int
+  default: 3447003
 
 steps:
 
 - powershell: |
+
+    # ========================================================
+    # DADOS
+    # ========================================================
+
     $environmentName = "${{ parameters.environmentName }}"
+
     $rarity = "$(gachaRarity)"
     $character = "$(gachaCharacter)"
     $roll = "$(gachaRoll)"
     $emoji = "$(gachaEmoji)"
 
-    $message = @"
-    🎰 **ROLETA DA RINHA DE GALO**
+    # ========================================================
+    # DISCORD EMBED
+    # ========================================================
 
-    🏟️ Ambiente: **$environmentName**
+    $embed = @{
+        title = "🎰 ROLETA DA RINHA DE GALO"
+        description = "Resultado do sorteio"
 
-    🎲 Roll: **$roll**
+        color = ${{ parameters.color }}
 
-    $emoji Raridade: **$rarity**
+        fields = @(
+            @{
+                name = "🏟️ Ambiente"
+                value = "**$environmentName**"
+                inline = $true
+            }
 
-    🐓 Galo: **$character**
+            @{
+                name = "🎲 Roll"
+                value = "**$roll**"
+                inline = $true
+            }
 
-    🎉 **Parabéns!**
-    "@
+            @{
+                name = "$emoji Raridade"
+                value = "**$rarity**"
+                inline = $true
+            }
+
+            @{
+                name = "🐓 Galo"
+                value = "**$character**"
+                inline = $false
+            }
+        )
+
+        footer = @{
+            text = "Roleta da Rinha • Azure Pipelines"
+        }
+    }
+
+    # ========================================================
+    # PAYLOAD
+    # ========================================================
 
     $body = @{
-      content = $message
-    } | ConvertTo-Json
+        embeds = @($embed)
+    } | ConvertTo-Json -Depth 10
+
+    # ========================================================
+    # DISCORD
+    # ========================================================
 
     Invoke-RestMethod `
-      -Uri "$(webhook1)" `
-      -Method Post `
-      -ContentType "application/json" `
-      -Body $body
+        -Uri "$(webhook1)" `
+        -Method Post `
+        -ContentType "application/json" `
+        -Body $body
 
   displayName: "Discord - Resultado ${{ parameters.environmentName }}"
