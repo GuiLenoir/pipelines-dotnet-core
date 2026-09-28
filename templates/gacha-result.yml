@@ -1,5 +1,4 @@
 parameters:
-
 - name: environmentName
   type: string
 
@@ -8,13 +7,7 @@ parameters:
   default: "3447003"
 
 steps:
-
 - powershell: |
-
-    # ========================================================
-    # DADOS DOS GALOS
-    # ========================================================
-
     $galo1Nome = "$(galo1Nome)"
     $galo1Raridade = "$(galo1Raridade)"
     $galo1Hp = [int]"$(galo1Hp)"
@@ -29,46 +22,28 @@ steps:
     $galo2Defesa = [int]"$(galo2Defesa)"
     $galo2Velocidade = [int]"$(galo2Velocidade)"
 
-
-    # ========================================================
-    # VIDA INICIAL
-    # ========================================================
-
     $hp1 = $galo1Hp
     $hp2 = $galo2Hp
 
     $round = 1
     $rounds = @()
 
-
-    # ========================================================
-    # BATALHA
-    # ========================================================
+    Write-Host ""
+    Write-Host "========================================"
+    Write-Host "             BATALHA"
+    Write-Host "========================================"
 
     while ($hp1 -gt 0 -and $hp2 -gt 0 -and $round -le 20) {
 
         Write-Host ""
-        Write-Host "========== ROUND $round =========="
-
-
-        # ====================================================
-        # DEFINIR QUEM ATACA PRIMEIRO
-        # ====================================================
+        Write-Host "ROUND $round"
 
         if ($galo1Velocidade -ge $galo2Velocidade) {
-
             $primeiro = 1
-
         }
         else {
-
             $primeiro = 2
         }
-
-
-        # ====================================================
-        # GALO 1 ATACA PRIMEIRO
-        # ====================================================
 
         if ($primeiro -eq 1) {
 
@@ -78,36 +53,23 @@ steps:
                 $dano = 1
             }
 
-
             $critico = Get-Random -Minimum 1 -Maximum 101
 
-
             if ($critico -le 20) {
-
                 $dano = $dano * 2
-
-                $rounds += "Round $round - $galo1Nome acertou um CRITICO causando $dano de dano!"
-
+                $rounds += "Round $round - $galo1Nome acertou CRITICO causando $dano de dano."
             }
             else {
-
-                $rounds += "Round $round - $galo1Nome causou $dano de dano!"
+                $rounds += "Round $round - $galo1Nome causou $dano de dano."
             }
-
 
             $hp2 -= $dano
 
             Write-Host "$galo1Nome causou $dano de dano."
 
-
             if ($hp2 -le 0) {
                 break
             }
-
-
-            # ====================================================
-            # GALO 2 CONTRA-ATACA
-            # ====================================================
 
             $dano = $galo2Ataque - [math]::Floor($galo1Defesa / 2)
 
@@ -115,33 +77,20 @@ steps:
                 $dano = 1
             }
 
-
             $critico = Get-Random -Minimum 1 -Maximum 101
 
-
             if ($critico -le 20) {
-
                 $dano = $dano * 2
-
-                $rounds += "Round $round - $galo2Nome respondeu com um CRITICO causando $dano de dano!"
-
+                $rounds += "Round $round - $galo2Nome acertou CRITICO causando $dano de dano."
             }
             else {
-
-                $rounds += "Round $round - $galo2Nome causou $dano de dano!"
+                $rounds += "Round $round - $galo2Nome causou $dano de dano."
             }
-
 
             $hp1 -= $dano
 
             Write-Host "$galo2Nome causou $dano de dano."
         }
-
-
-        # ====================================================
-        # GALO 2 ATACA PRIMEIRO
-        # ====================================================
-
         else {
 
             $dano = $galo2Ataque - [math]::Floor($galo1Defesa / 2)
@@ -150,36 +99,23 @@ steps:
                 $dano = 1
             }
 
-
             $critico = Get-Random -Minimum 1 -Maximum 101
 
-
             if ($critico -le 20) {
-
                 $dano = $dano * 2
-
-                $rounds += "Round $round - $galo2Nome acertou um CRITICO causando $dano de dano!"
-
+                $rounds += "Round $round - $galo2Nome acertou CRITICO causando $dano de dano."
             }
             else {
-
-                $rounds += "Round $round - $galo2Nome causou $dano de dano!"
+                $rounds += "Round $round - $galo2Nome causou $dano de dano."
             }
-
 
             $hp1 -= $dano
 
             Write-Host "$galo2Nome causou $dano de dano."
 
-
             if ($hp1 -le 0) {
                 break
             }
-
-
-            # ====================================================
-            # GALO 1 CONTRA-ATACA
-            # ====================================================
 
             $dano = $galo1Ataque - [math]::Floor($galo2Defesa / 2)
 
@@ -187,159 +123,103 @@ steps:
                 $dano = 1
             }
 
-
             $critico = Get-Random -Minimum 1 -Maximum 101
 
-
             if ($critico -le 20) {
-
                 $dano = $dano * 2
-
-                $rounds += "Round $round - $galo1Nome respondeu com um CRITICO causando $dano de dano!"
-
+                $rounds += "Round $round - $galo1Nome acertou CRITICO causando $dano de dano."
             }
             else {
-
-                $rounds += "Round $round - $galo1Nome causou $dano de dano!"
+                $rounds += "Round $round - $galo1Nome causou $dano de dano."
             }
-
 
             $hp2 -= $dano
 
             Write-Host "$galo1Nome causou $dano de dano."
         }
 
-
         $round++
     }
 
-
-    # ========================================================
-    # DEFINIR VENCEDOR
-    # ========================================================
-
     if ($hp1 -gt 0 -and $hp2 -le 0) {
-
         $winner = $galo1Nome
         $winnerRarity = $galo1Raridade
         $winnerHp = $hp1
-
     }
     elseif ($hp2 -gt 0 -and $hp1 -le 0) {
-
         $winner = $galo2Nome
         $winnerRarity = $galo2Raridade
         $winnerHp = $hp2
-
     }
     else {
-
         if ($hp1 -ge $hp2) {
-
             $winner = $galo1Nome
             $winnerRarity = $galo1Raridade
             $winnerHp = $hp1
-
         }
         else {
-
             $winner = $galo2Nome
             $winnerRarity = $galo2Raridade
             $winnerHp = $hp2
         }
     }
 
-
-    # ========================================================
-    # LOG
-    # ========================================================
-
     Write-Host ""
     Write-Host "========================================"
     Write-Host "              VENCEDOR"
     Write-Host "========================================"
     Write-Host ""
-    Write-Host "$winner"
+    Write-Host "Nome: $winner"
     Write-Host "Raridade: $winnerRarity"
     Write-Host "HP restante: $winnerHp"
     Write-Host ""
 
-
-    # ========================================================
-    # PREPARAR TEXTO DA BATALHA
-    # ========================================================
-
     $battleText = ""
 
     foreach ($item in $rounds) {
-
-        $battleText += "$item`n"
+        $battleText = $battleText + $item + "`n"
     }
 
+    $message = "ROLETA DA RINHA - ${{ parameters.environmentName }}`n`n"
+    $message = $message + "========================================`n`n"
 
-    # ========================================================
-    # MONTAR MENSAGEM DISCORD
-    # ========================================================
+    $message = $message + "GALO 1`n"
+    $message = $message + "Nome: $galo1Nome`n"
+    $message = $message + "Raridade: $galo1Raridade`n"
+    $message = $message + "HP: $galo1Hp`n"
+    $message = $message + "ATK: $galo1Ataque`n"
+    $message = $message + "DEF: $galo1Defesa`n"
+    $message = $message + "SPD: $galo1Velocidade`n`n"
 
-    $message = @"
-ROLETA DA RINHA - ${{ parameters.environmentName }}
+    $message = $message + "========================================`n`n"
 
-========================================
+    $message = $message + "GALO 2`n"
+    $message = $message + "Nome: $galo2Nome`n"
+    $message = $message + "Raridade: $galo2Raridade`n"
+    $message = $message + "HP: $galo2Hp`n"
+    $message = $message + "ATK: $galo2Ataque`n"
+    $message = $message + "DEF: $galo2Defesa`n"
+    $message = $message + "SPD: $galo2Velocidade`n`n"
 
-GALO 1
+    $message = $message + "========================================`n`n"
+    $message = $message + "A LUTA COMECou!`n`n"
+    $message = $message + $battleText
+    $message = $message + "`n========================================`n`n"
 
-Nome: $galo1Nome
-Raridade: $galo1Raridade
-HP: $galo1Hp
-ATK: $galo1Ataque
-DEF: $galo1Defesa
-SPD: $galo1Velocidade
-
-
-========================================
-
-GALO 2
-
-Nome: $galo2Nome
-Raridade: $galo2Raridade
-HP: $galo2Hp
-ATK: $galo2Ataque
-DEF: $galo2Defesa
-SPD: $galo2Velocidade
-
-
-========================================
-
-A LUTA COMECOU!
-
-$battleText
-
-========================================
-
-VENCEDOR
-
-$winner
-
-Raridade: $winnerRarity
-HP restante: $winnerHp
-
-Fim da luta!
-"@
-
-
-    # ========================================================
-    # ENVIAR PARA DISCORD
-    # ========================================================
+    $message = $message + "VENCEDOR`n`n"
+    $message = $message + $winner
+    $message = $message + "`nRaridade: " + $winnerRarity
+    $message = $message + "`nHP restante: " + $winnerHp
+    $message = $message + "`n`nFim da luta!"
 
     $body = @{
         content = $message
     } | ConvertTo-Json
 
-
     Invoke-RestMethod `
-        -Uri "$(webhook1)" `
-        -Method Post `
-        -ContentType "application/json" `
-        -Body $body
+      -Uri "$(webhook1)" `
+      -Method Post `
+      -ContentType "application/json" `
+      -Body $body
 
   displayName: "Batalha - ${{ parameters.environmentName }}"
