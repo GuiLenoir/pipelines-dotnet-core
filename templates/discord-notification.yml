@@ -10,19 +10,16 @@ parameters:
 steps:
 
 - powershell: |
-
-    $message = @'
-${{ parameters.message }}
-'@
+    $message = '${{ parameters.message }}'
 
     $body = @{
-        content = $message
+      content = $message
     } | ConvertTo-Json
 
     Invoke-RestMethod `
-        -Uri "$(webhook1)" `
-        -Method Post `
-        -ContentType "application/json" `
-        -Body $body
+      -Uri "$(webhook1)" `
+      -Method Post `
+      -ContentType "application/json" `
+      -Body $body
 
   displayName: "${{ parameters.displayName }}"
