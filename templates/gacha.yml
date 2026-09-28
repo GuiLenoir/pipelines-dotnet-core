@@ -3,7 +3,7 @@ steps:
 - powershell: |
 
     # ========================================================
-    # PERSONAGENS
+    # GALOS
     # ========================================================
 
     $characters = @{
@@ -35,103 +35,127 @@ steps:
         )
     }
 
-    # ========================================================
-    # SORTEIO
-    # ========================================================
+    function Gerar-Galo {
 
-    $roll = Get-Random -Minimum 1 -Maximum 101
+        $roll = Get-Random -Minimum 1 -Maximum 101
 
-    Write-Host "Número sorteado: $roll"
-
-    # ========================================================
-    # RARIDADE
-    # ========================================================
-
-    if ($roll -le 60) {
-
-        $rarity = "Common"
-
-    }
-    elseif ($roll -le 85) {
-
-        $rarity = "Uncommon"
-
-    }
-    elseif ($roll -le 95) {
-
-        $rarity = "Rare"
-
-    }
-    elseif ($roll -le 99) {
-
-        $rarity = "Epic"
-
-    }
-    else {
-
-        $rarity = "Legendary"
-    }
-
-    # ========================================================
-    # PERSONAGEM
-    # ========================================================
-
-    $character = Get-Random -InputObject $characters[$rarity]
-
-    # ========================================================
-    # EMOJI
-    # ========================================================
-
-    switch ($rarity) {
-
-        "Common" {
-            $emoji = "⚪"
+        if ($roll -le 60) {
+            $raridade = "Common"
+        }
+        elseif ($roll -le 85) {
+            $raridade = "Uncommon"
+        }
+        elseif ($roll -le 95) {
+            $raridade = "Rare"
+        }
+        elseif ($roll -le 99) {
+            $raridade = "Epic"
+        }
+        else {
+            $raridade = "Legendary"
         }
 
-        "Uncommon" {
-            $emoji = "🟢"
+        $nome = Get-Random -InputObject $characters[$raridade]
+
+        switch ($raridade) {
+
+            "Common" {
+                $hp = Get-Random -Minimum 80 -Maximum 101
+                $ataque = Get-Random -Minimum 20 -Maximum 41
+                $defesa = Get-Random -Minimum 20 -Maximum 41
+                $velocidade = Get-Random -Minimum 20 -Maximum 41
+            }
+
+            "Uncommon" {
+                $hp = Get-Random -Minimum 90 -Maximum 111
+                $ataque = Get-Random -Minimum 35 -Maximum 56
+                $defesa = Get-Random -Minimum 30 -Maximum 51
+                $velocidade = Get-Random -Minimum 30 -Maximum 51
+            }
+
+            "Rare" {
+                $hp = Get-Random -Minimum 100 -Maximum 121
+                $ataque = Get-Random -Minimum 50 -Maximum 71
+                $defesa = Get-Random -Minimum 40 -Maximum 61
+                $velocidade = Get-Random -Minimum 40 -Maximum 61
+            }
+
+            "Epic" {
+                $hp = Get-Random -Minimum 110 -Maximum 131
+                $ataque = Get-Random -Minimum 65 -Maximum 86
+                $defesa = Get-Random -Minimum 50 -Maximum 71
+                $velocidade = Get-Random -Minimum 50 -Maximum 71
+            }
+
+            "Legendary" {
+                $hp = Get-Random -Minimum 120 -Maximum 151
+                $ataque = Get-Random -Minimum 80 -Maximum 101
+                $defesa = Get-Random -Minimum 60 -Maximum 81
+                $velocidade = Get-Random -Minimum 60 -Maximum 81
+            }
         }
 
-        "Rare" {
-            $emoji = "🔵"
-        }
-
-        "Epic" {
-            $emoji = "🟣"
-        }
-
-        "Legendary" {
-            $emoji = "🟡"
+        return @{
+            Nome = $nome
+            Raridade = $raridade
+            Hp = $hp
+            Ataque = $ataque
+            Defesa = $defesa
+            Velocidade = $velocidade
         }
     }
 
     # ========================================================
-    # LOG
+    # GERAR GALO 1
     # ========================================================
+
+    $galo1 = Gerar-Galo
+
+    # ========================================================
+    # GERAR GALO 2
+    # ========================================================
+
+    $galo2 = Gerar-Galo
 
     Write-Host ""
-    Write-Host "===================================="
-    Write-Host "       🐓 ROLETA DA RINHA"
-    Write-Host "===================================="
+    Write-Host "========================================"
+    Write-Host "          🐓 GALOS SORTEADOS"
+    Write-Host "========================================"
+
     Write-Host ""
-    Write-Host "Roll:       $roll"
-    Write-Host "Rarity:     $rarity"
-    Write-Host "Character:  $character"
-    Write-Host "Emoji:      $emoji"
+    Write-Host "GALO 1"
+    Write-Host "Nome: $($galo1.Nome)"
+    Write-Host "Raridade: $($galo1.Raridade)"
+    Write-Host "HP: $($galo1.Hp)"
+    Write-Host "Ataque: $($galo1.Ataque)"
+    Write-Host "Defesa: $($galo1.Defesa)"
+    Write-Host "Velocidade: $($galo1.Velocidade)"
+
     Write-Host ""
-    Write-Host "===================================="
-    Write-Host ""
+    Write-Host "GALO 2"
+    Write-Host "Nome: $($galo2.Nome)"
+    Write-Host "Raridade: $($galo2.Raridade)"
+    Write-Host "HP: $($galo2.Hp)"
+    Write-Host "Ataque: $($galo2.Ataque)"
+    Write-Host "Defesa: $($galo2.Defesa)"
+    Write-Host "Velocidade: $($galo2.Velocidade)"
 
     # ========================================================
-    # VARIÁVEIS DA PIPELINE
+    # VARIÁVEIS
     # ========================================================
 
-    Write-Host "##vso[task.setvariable variable=gachaRarity]$rarity"
+    Write-Host "##vso[task.setvariable variable=galo1Nome]$($galo1.Nome)"
+    Write-Host "##vso[task.setvariable variable=galo1Raridade]$($galo1.Raridade)"
+    Write-Host "##vso[task.setvariable variable=galo1Hp]$($galo1.Hp)"
+    Write-Host "##vso[task.setvariable variable=galo1Ataque]$($galo1.Ataque)"
+    Write-Host "##vso[task.setvariable variable=galo1Defesa]$($galo1.Defesa)"
+    Write-Host "##vso[task.setvariable variable=galo1Velocidade]$($galo1.Velocidade)"
 
-    Write-Host "##vso[task.setvariable variable=gachaCharacter]$character"
+    Write-Host "##vso[task.setvariable variable=galo2Nome]$($galo2.Nome)"
+    Write-Host "##vso[task.setvariable variable=galo2Raridade]$($galo2.Raridade)"
+    Write-Host "##vso[task.setvariable variable=galo2Hp]$($galo2.Hp)"
+    Write-Host "##vso[task.setvariable variable=galo2Ataque]$($galo2.Ataque)"
+    Write-Host "##vso[task.setvariable variable=galo2Defesa]$($galo2.Defesa)"
+    Write-Host "##vso[task.setvariable variable=galo2Velocidade]$($galo2.Velocidade)"
 
-    Write-Host "##vso[task.setvariable variable=gachaRoll]$roll"
-
-    Write-Host "##vso[task.setvariable variable=gachaEmoji]$emoji"
-
-  displayName: "🎰 Executar Roleta"
+  displayName: "🎰 Sortear dois galos"

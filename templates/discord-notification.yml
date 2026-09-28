@@ -12,7 +12,9 @@ steps:
 - powershell: |
 
     $body = @{
-      content = '${{ parameters.message }}'
+      content = @'
+${{ parameters.message }}
+'@
     } | ConvertTo-Json
 
     Invoke-RestMethod `

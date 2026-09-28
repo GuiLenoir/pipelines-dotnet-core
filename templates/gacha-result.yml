@@ -12,74 +12,276 @@ steps:
 - powershell: |
 
     # ========================================================
-    # DADOS
+    # DADOS DOS GALOS
     # ========================================================
 
-    $environmentName = "${{ parameters.environmentName }}"
+    $galo1Nome = "$(galo1Nome)"
+    $galo1Raridade = "$(galo1Raridade)"
+    $galo1Hp = [int]"$(galo1Hp)"
+    $galo1Ataque = [int]"$(galo1Ataque)"
+    $galo1Defesa = [int]"$(galo1Defesa)"
+    $galo1Velocidade = [int]"$(galo1Velocidade)"
 
-    $rarity = "$(gachaRarity)"
-    $character = "$(gachaCharacter)"
-    $roll = "$(gachaRoll)"
-    $emoji = "$(gachaEmoji)"
-
-    $color = [int]${{ parameters.color }}
-
+    $galo2Nome = "$(galo2Nome)"
+    $galo2Raridade = "$(galo2Raridade)"
+    $galo2Hp = [int]"$(galo2Hp)"
+    $galo2Ataque = [int]"$(galo2Ataque)"
+    $galo2Defesa = [int]"$(galo2Defesa)"
+    $galo2Velocidade = [int]"$(galo2Velocidade)"
 
     # ========================================================
-    # DISCORD EMBED
+    # VIDA INICIAL
     # ========================================================
 
-    $embed = @{
-        title = "🎰 ROLETA DA RINHA DE GALO"
+    $hp1 = $galo1Hp
+    $hp2 = $galo2Hp
 
-        description = "Resultado do sorteio"
+    $round = 1
+    $rounds = @()
 
-        color = $color
+    # ========================================================
+    # BATALHA
+    # ========================================================
 
-        fields = @(
-            @{
-                name = "🏟️ Ambiente"
-                value = "**$environmentName**"
-                inline = $true
-            }
+    while ($hp1 -gt 0 -and $hp2 -gt 0 -and $round -le 20) {
 
-            @{
-                name = "🎲 Roll"
-                value = "**$roll**"
-                inline = $true
-            }
+        Write-Host ""
+        Write-Host "========== ROUND $round =========="
 
-            @{
-                name = "$emoji Raridade"
-                value = "**$rarity**"
-                inline = $true
-            }
+        # -----------------------------------------------
+        # QUEM ATACA PRIMEIRO?
+        # -----------------------------------------------
 
-            @{
-                name = "🐓 Galo"
-                value = "**$character**"
-                inline = $false
-            }
-        )
+        if ($galo1Velocidade -ge $galo2Velocidade) {
 
-        footer = @{
-            text = "Roleta da Rinha • Azure Pipelines"
+            $primeiro = 1
+
         }
+        else {
+
+            $primeiro = 2
+        }
+
+        # ====================================================
+        # PRIMEIRO ATAQUE
+        # ====================================================
+
+        if ($primeiro -eq 1) {
+
+            $dano = $galo1Ataque - [math]::Floor($galo2Defesa / 2)
+
+            if ($dano -lt 1) {
+                $dano = 1
+            }
+
+            $critico = Get-Random -Minimum 1 -Maximum 101
+
+            if ($critico -le 20) {
+
+                $dano = $dano * 2
+
+                $rounds += "🥊 **Round $round** — 🐓 **$galo1Nome** acertou um 💥 **CRÍTICO** causando **$dano de dano**!"
+
+            }
+            else {
+
+                $rounds += "🥊 **Round $round** — 🐓 **$galo1Nome** causou **$dano de dano**!"
+            }
+
+            $hp2 -= $dano
+
+            Write-Host "$galo1Nome causou $dano"
+
+            if ($hp2 -le 0) {
+                break
+            }
+
+            # -----------------------------------------------
+            # CONTRA-ATAQUE
+            # -----------------------------------------------
+
+            $dano = $galo2Ataque - [math]::Floor($galo1Defesa / 2)
+
+            if ($dano -lt 1) {
+                $dano = 1
+            }
+
+            $critico = Get-Random -Minimum 1 -Maximum 101
+
+            if ($critico -le 20) {
+
+                $dano = $dano * 2
+
+                $rounds += "🥊 **Round $round** — 🐓 **$galo2Nome** respondeu com 💥 **CRÍTICO** causando **$dano de dano**!"
+
+            }
+            else {
+
+                $rounds += "🥊 **Round $round** — 🐓 **$galo2Nome** causou **$dano de dano**!"
+            }
+
+            $hp1 -= $dano
+
+            Write-Host "$galo2Nome causou $dano"
+
+        }
+
+        # ====================================================
+        # GALO 2 ATACA PRIMEIRO
+        # ====================================================
+
+        else {
+
+            $dano = $galo2Ataque - [math]::Floor($galo1Defesa / 2)
+
+            if ($dano -lt 1) {
+                $dano = 1
+            }
+
+            $critico = Get-Random -Minimum 1 -Maximum 101
+
+            if ($critico -le 20) {
+
+                $dano = $dano * 2
+
+                $rounds += "🥊 **Round $round** — 🐓 **$galo2Nome** acertou um 💥 **CRÍTICO** causando **$dano de dano**!"
+
+            }
+            else {
+
+                $rounds += "🥊 **Round $round** — 🐓 **$galo2Nome** causou **$dano de dano**!"
+            }
+
+            $hp1 -= $dano
+
+            Write-Host "$galo2Nome causou $dano"
+
+            if ($hp1 -le 0) {
+                break
+            }
+
+            # -----------------------------------------------
+            # CONTRA-ATAQUE
+            # -----------------------------------------------
+
+            $dano = $galo1Ataque - [math]::Floor($galo2Defesa / 2)
+
+            if ($dano -lt 1) {
+                $dano = 1
+            }
+
+            $critico = Get-Random -Minimum 1 -Maximum 101
+
+            if ($critico -le 20) {
+
+                $dano = $dano * 2
+
+                $rounds += "🥊 **Round $round** — 🐓 **$galo1Nome** respondeu com 💥 **CRÍTICO** causando **$dano de dano**!"
+
+            }
+            else {
+
+                $rounds += "🥊 **Round $round** — 🐓 **$galo1Nome** causou **$dano de dano**!"
+            }
+
+            $hp2 -= $dano
+
+            Write-Host "$galo1Nome causou $dano"
+        }
+
+        $round++
+
     }
 
+    # ========================================================
+    # DEFINIR VENCEDOR
+    # ========================================================
+
+    if ($hp1 -gt 0) {
+
+        $winner = $galo1Nome
+        $winnerRarity = $galo1Raridade
+        $winnerHp = $hp1
+
+    }
+    else {
+
+        $winner = $galo2Nome
+        $winnerRarity = $galo2Raridade
+        $winnerHp = $hp2
+    }
 
     # ========================================================
-    # PAYLOAD
+    # LOG
     # ========================================================
 
-    $body = @{
-        embeds = @($embed)
-    } | ConvertTo-Json -Depth 10
+    Write-Host ""
+    Write-Host "========================================"
+    Write-Host "             🏆 VENCEDOR"
+    Write-Host "========================================"
+    Write-Host ""
+    Write-Host "🐓 $winner"
+    Write-Host "⭐ $winnerRarity"
+    Write-Host "❤️ HP restante: $winnerHp"
+    Write-Host ""
 
+    # ========================================================
+    # ROUNDS PARA DISCORD
+    # ========================================================
+
+    $battleText = ""
+
+    foreach ($item in $rounds) {
+
+        $battleText += "$item`n"
+    }
 
     # ========================================================
     # DISCORD
     # ========================================================
+
+    $message = @"
+🎰 **ROLETA DA RINHA — ${{ parameters.environmentName }}**
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+🐓 **$galo1Nome**
+⭐ $galo1Raridade
+❤️ HP: **$galo1Hp**
+⚔️ ATK: **$galo1Ataque**
+🛡️ DEF: **$galo1Defesa**
+💨 SPD: **$galo1Velocidade**
+
+            🆚
+
+🐓 **$galo2Nome**
+⭐ $galo2Raridade
+❤️ HP: **$galo2Hp**
+⚔️ ATK: **$galo2Ataque**
+🛡️ DEF: **$galo2Defesa**
+💨 SPD: **$galo2Velocidade**
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚔️ **A LUTA COMEÇOU!**
+
+$battleText
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+🏆 **VENCEDOR**
+
+🐓 **$winner**
+
+⭐ Raridade: **$winnerRarity**
+❤️ HP restante: **$winnerHp**
+
+🎉 Fim da luta!
+"@
+
+    $body = @{
+        content = $message
+    } | ConvertTo-Json
 
     Invoke-RestMethod `
         -Uri "$(webhook1)" `
@@ -87,4 +289,4 @@ steps:
         -ContentType "application/json" `
         -Body $body
 
-  displayName: "Discord - Resultado ${{ parameters.environmentName }}"
+  displayName: "⚔️ Batalha - ${{ parameters.environmentName }}"
