@@ -29,10 +29,7 @@ stages:
 
           steps:
 
-          # ----------------------------------------
           # Discord - início
-          # ----------------------------------------
-
           - powershell: |
               $body = @{
                 content = "🔵 DEV - Deploy iniciado"
@@ -47,10 +44,7 @@ stages:
             displayName: "Discord - DEV iniciado"
 
 
-          # ----------------------------------------
-          # Deploy DEV
-          # ----------------------------------------
-
+          # Deploy
           - script: |
               echo "================================="
               echo "Executando deploy DEV..."
@@ -61,10 +55,7 @@ stages:
             displayName: "Executar deploy DEV"
 
 
-          # ----------------------------------------
           # Discord - sucesso
-          # ----------------------------------------
-
           - powershell: |
               $body = @{
                 content = "🟢 DEV - Deploy finalizado com sucesso"
@@ -101,10 +92,7 @@ stages:
 
           steps:
 
-          # ----------------------------------------
           # Discord - início
-          # ----------------------------------------
-
           - powershell: |
               $body = @{
                 content = "🟡 HOMOLOG - Deploy iniciado"
@@ -119,27 +107,29 @@ stages:
             displayName: "Discord - HOMOLOG iniciado"
 
 
-          # ----------------------------------------
-          # Deploy HOMOLOG
-          # ----------------------------------------
+          # ========================================
+          # SIMULAÇÃO DE FALHA
+          # ========================================
 
           - script: |
               echo "================================="
               echo "Executando deploy HOMOLOG..."
               echo "================================="
 
-              sleep 5
+              echo "Simulando erro..."
 
-            displayName: "Executar deploy HOMOLOG"
+              exit 1
+
+            displayName: "💥 Simular falha HOMOLOG"
 
 
-          # ----------------------------------------
-          # Discord - sucesso
-          # ----------------------------------------
+          # ========================================
+          # Discord - falha
+          # ========================================
 
           - powershell: |
               $body = @{
-                content = "🟢 HOMOLOG - Deploy finalizado com sucesso"
+                content = "🔴 HOMOLOG - Deploy falhou!"
               } | ConvertTo-Json
 
               Invoke-RestMethod `
@@ -148,7 +138,8 @@ stages:
                 -ContentType "application/json" `
                 -Body $body
 
-            displayName: "Discord - HOMOLOG finalizado"
+            condition: failed()
+            displayName: "Discord - HOMOLOG falhou"
 
 
 # ============================================================
@@ -173,10 +164,7 @@ stages:
 
           steps:
 
-          # ----------------------------------------
           # Discord - início
-          # ----------------------------------------
-
           - powershell: |
               $body = @{
                 content = "🚀 PROD - Deploy autorizado e iniciado"
@@ -191,10 +179,7 @@ stages:
             displayName: "Discord - PROD iniciado"
 
 
-          # ----------------------------------------
-          # Deploy PROD
-          # ----------------------------------------
-
+          # Deploy
           - script: |
               echo "================================="
               echo "Executando deploy PROD..."
@@ -205,10 +190,7 @@ stages:
             displayName: "Executar deploy PROD"
 
 
-          # ----------------------------------------
           # Discord - sucesso
-          # ----------------------------------------
-
           - powershell: |
               $body = @{
                 content = "✅ PROD - Deploy finalizado com sucesso"
